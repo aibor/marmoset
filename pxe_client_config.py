@@ -1,11 +1,11 @@
 import os
 
-class RescueEntry(object):
+class PXEClientConfig(object):
 
-    PXECFG_DIR = '/tftpboot/pxelinux.cfg/'
+    DIR = '/tftpboot/pxelinux.cfg/'
 
     def __init__(self, ip_address):
-        os.makedirs(RescueEntry.PXECFG_DIR, exist_ok=True)
+        os.makedirs(PXEClientConfig.DIR, exist_ok=True)
         self.ip_address = ip_address
 
     def exists(self):
@@ -27,6 +27,6 @@ class RescueEntry(object):
         return "%02X%02X%02X%02X" % tuple(octets)
 
     def file_path(self):
-        cfgdir = RescueEntry.PXECFG_DIR.rstrip('/')
+        cfgdir = PXEClientConfig.DIR.rstrip('/')
         return cfgdir + '/' + self.file_name()
 
