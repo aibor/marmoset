@@ -1,17 +1,20 @@
 import os
 
-class PXEClientConfig(object):
+__all__ = ['PXEClientConfig']
+
+
+class PXEClientConfig:
 
     DIR = '/tftpboot/pxelinux.cfg/'
 
     def __init__(self, ip_address):
-        os.makedirs(PXEClientConfig.DIR, exist_ok=True)
         self.ip_address = ip_address
 
     def exists(self):
         return os.path.isfile(self.file_path())
 
     def create(self):
+        os.makedirs(PXEClientConfig.DIR, exist_ok=True)
         f = open(self.file_path(), 'w+')
         f.write("INCLUDE pxelinux.cfg/default\n"
                 "DEFAULT rescue\n"
