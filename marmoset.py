@@ -1,5 +1,5 @@
-from flask import Flask, Response, request, jsonify, url_for
-from lib.flask.json import make_json_app
+from flask import Flask, request, url_for
+from lib.flask.json import *
 from lib.flask.auth import requires_auth
 from werkzeug.exceptions import NotFound
 from lib.pxe_client_config import PXEClientConfig
@@ -21,11 +21,8 @@ def create_rescue_entry():
     re = PXEClientConfig(ip_address)
     re.create()
 
-    response = jsonify(vars(re))
-    response.status_code = 201
-    response.headers['Location'] = url_for('rescue_entry', ip_address=ip_address)
-
-    return response
+    location = url_for('rescue_entry', ip_address=ip_address)
+    return json_response(vars(re), 201, {'Location': location})
 
 
 @app.route('/rescue/<ip_address>', methods=['GET'])
@@ -36,7 +33,7 @@ def rescue_entry(ip_address):
     re = PXEClientConfig(ip_address)
 
     if re.exists():
-        return jsonify(vars(re))
+        return json_response(vars(re), 200)
     else:
         raise NotFound
 
@@ -50,9 +47,7 @@ def remove_rescue_entry(ip_address):
 
     if re.exists():
         re.remove()
-        response = jsonify({})
-        response.status_code = 204
-        return response
+        return json_response({}, 204)
     else:
         raise NotFound
 
