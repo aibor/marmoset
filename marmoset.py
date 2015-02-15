@@ -4,9 +4,6 @@ from lib.flask_ext import *
 from lib.pxe_client_config import PXEClientConfig
 
 
-PXEClientConfig.DIR = '/srv/tftp/pxelinux.cfg/'
-
-
 app = make_json_app(__name__)
 
 
