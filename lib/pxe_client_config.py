@@ -1,4 +1,6 @@
 import os
+from shutil import copyfile
+
 
 __all__ = ['PXEClientConfig']
 
@@ -13,14 +15,9 @@ class PXEClientConfig:
     def exists(self):
         return os.path.isfile(self.file_path())
 
-    def create(self):
+    def create(self, pxe_file):
         os.makedirs(PXEClientConfig.DIR, exist_ok=True)
-        f = open(self.file_path(), 'w+')
-        f.write("INCLUDE pxelinux.cfg/default\n"
-                "DEFAULT rescue\n"
-                "PROMPT 0\n"
-                "TIMEOUT 1\n")
-        f.close()
+        copyfile('templates/' + pxe_file, self.file_path())
 
     def remove(self):
         os.remove(self.file_path())

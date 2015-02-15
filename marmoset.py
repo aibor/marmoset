@@ -22,7 +22,7 @@ def create_rescue_entry():
     if re.exists():
         return json_response({}, 409)
 
-    re.create()
+    re.create('rescue')
 
     location = url_for('rescue_entry', ip_address=ip_address)
     return json_response(vars(re), 201, {'Location': location})

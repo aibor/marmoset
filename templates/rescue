@@ -1,0 +1,4 @@
+INCLUDE pxelinux.cfg/default
+DEFAULT rescue
+PROMPT 0
+TIMEOUT 1
