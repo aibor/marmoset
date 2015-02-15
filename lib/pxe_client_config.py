@@ -1,4 +1,4 @@
-import os
+import os, re
 from shutil import copyfile
 
 
@@ -11,7 +11,19 @@ class PXEClientConfig:
 
 
     def __init__(self, ip_address):
+        if re.match('[0-9A-Z]{8}', ip_address.upper()):
+            octets = [ str(int(x, 16)) for x in re.findall('..', ip_address) ]
+            ip_address = '.'.join(octets)
+
         self.ip_address = ip_address
+
+
+    @classmethod
+    def all(cls):
+        entries = os.listdir(PXEClientConfig.DIR)
+        if entries.count('default'):
+            entries.remove('default')
+        return [ PXEClientConfig(x) for x in entries ]
 
 
     def exists(self):
