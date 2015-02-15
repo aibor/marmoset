@@ -1,7 +1,6 @@
 from flask import Flask, request, url_for
-from lib.flask.json import *
-from lib.flask.auth import requires_auth
 from werkzeug.exceptions import NotFound
+from lib.flask_ext import *
 from lib.pxe_client_config import PXEClientConfig
 
 
