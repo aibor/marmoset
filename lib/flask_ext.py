@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import Flask, Response, request, jsonify
 from werkzeug.exceptions import default_exceptions, HTTPException, Unauthorized
+from auth_data import USERNAME, PASSWORD
 
 
 __all__ = ['json_response', 'make_json_app', 'requires_auth']
@@ -40,7 +41,7 @@ def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
     """
-    return username == 'admin' and password == 'secret'
+    return username == USERNAME and password == PASSWORD
 
 
 def authenticate():

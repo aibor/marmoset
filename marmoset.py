@@ -4,7 +4,7 @@ from lib.flask_ext import *
 from lib.pxe_client_config import PXEClientConfig
 
 
-PXEClientConfig.DIR = '/srv/tftp/pxelinux.cfg/'
+PXEClientConfig.DIR = '/tmp/pxelinux.cfg/'
 
 
 app = make_json_app(__name__)
@@ -18,6 +18,10 @@ def create_rescue_entry():
     ip_address = request.form['ip_address']
 
     re = PXEClientConfig(ip_address)
+
+    if re.exists():
+        return json_response({}, 409)
+
     re.create()
 
     location = url_for('rescue_entry', ip_address=ip_address)
