@@ -3,6 +3,13 @@
 from lib.pxe_client_config import PXEClientConfig
 from os import listdir
 import argparse
+try:
+    import settings
+except: pass
+
+
+if 'settings' in globals() and 'CFG_DIR' in vars(settings):
+    PXEClientConfig.CFG_DIR = settings.CFG_DIR
 
 
 def create(args):
@@ -31,7 +38,7 @@ parser_create.add_argument('ip_address',
         help='IP address to create PXE entry for')
 parser_create.add_argument('-t', '--template',
         help='the PXE config template to use',
-        choices=listdir('templates'),
+        choices=listdir(PXEClientConfig.TMPL_DIR),
         default='rescue')
 parser_create.set_defaults(func=create)
 

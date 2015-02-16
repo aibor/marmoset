@@ -1,7 +1,21 @@
 from functools import wraps
 from flask import Flask, Response, request, jsonify
 from werkzeug.exceptions import default_exceptions, HTTPException, Unauthorized
-from auth_data import USERNAME, PASSWORD
+try:
+    import settings
+except: pass
+
+
+if 'settings' in globals() and 'USERNAME' in vars(settings):
+    USERNAME = settings.USERNAME
+else:
+    USERNAME = 'admin'
+
+    
+if 'settings' in globals() and 'PASSWORD' in vars(settings):
+    PASSWORD = settings.PASSWORD
+else:
+    PASSWORD = 'secret'
 
 
 __all__ = ['json_response', 'make_json_app', 'requires_auth']

@@ -7,7 +7,9 @@ __all__ = ['PXEClientConfig']
 
 class PXEClientConfig:
 
-    DIR = '/srv/tftp/pxelinux.cfg/'
+    CFG_DIR = '/srv/tftp/pxelinux.cfg/'
+
+    TMPL_DIR = os.path.dirname(__file__) + '/../templates'
 
 
     def __init__(self, ip_address):
@@ -20,7 +22,7 @@ class PXEClientConfig:
 
     @classmethod
     def all(cls):
-        entries = os.listdir(PXEClientConfig.DIR)
+        entries = os.listdir(PXEClientConfig.CFG_DIR)
         if entries.count('default'):
             entries.remove('default')
         return [ PXEClientConfig(x) for x in entries ]
@@ -31,8 +33,9 @@ class PXEClientConfig:
 
 
     def create(self, pxe_file = 'rescue'):
-        os.makedirs(PXEClientConfig.DIR, exist_ok=True)
-        return copyfile('templates/' + pxe_file, self.file_path())
+        os.makedirs(PXEClientConfig.CFG_DIR, exist_ok=True)
+        return copyfile(PXEClientConfig.TMPL_DIR + pxe_file,
+                self.file_path())
 
 
     def remove(self):
@@ -46,6 +49,6 @@ class PXEClientConfig:
 
 
     def file_path(self):
-        cfgdir = PXEClientConfig.DIR.rstrip('/')
+        cfgdir = PXEClientConfig.CFG_DIR.rstrip('/')
         return cfgdir + '/' + self.file_name()
 
