@@ -51,7 +51,7 @@ parser_list.set_defaults(func=list)
 
 parser_remove = subparsers.add_parser('remove',
         help='remove a PXE config for an IP address',
-        aliases=['r', 'rem', 'del'])
+        aliases=['r', 'rem', 'd', 'del'])
 parser_remove.add_argument('ip_address', help='IP address to remove PXE entry for')
 parser_remove.set_defaults(func=remove)
 

@@ -34,7 +34,7 @@ class PXEClientConfig:
 
     def create(self, pxe_file = 'rescue'):
         os.makedirs(PXEClientConfig.CFG_DIR, exist_ok=True)
-        return copyfile(PXEClientConfig.TMPL_DIR + pxe_file,
+        return copyfile(PXEClientConfig.TMPL_DIR + '/' + pxe_file,
                 self.file_path())
 
 
