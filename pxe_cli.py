@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from lib.pxe_client_config import PXEClientConfig
-from os import listdir
+from os import listdir, system
 import argparse
 try:
     import settings
@@ -14,7 +14,11 @@ if 'settings' in globals() and 'CFG_DIR' in vars(settings):
 
 def create(args):
     pxe_client = PXEClientConfig(args.ip_address)
-    print(pxe_client.create(args.template))
+    entryfile = pxe_client.create(args.template)
+    print('Created', entryfile)
+    if 'callback' in args and args.callback:
+        system('{} {} {} {}'.format(args.callback, args.template,
+            pxe_client.ip_address, entryfile))
 
 
 def list(args):
@@ -40,6 +44,9 @@ parser_create.add_argument('-t', '--template',
         help='the PXE config template to use',
         choices=listdir(PXEClientConfig.TMPL_DIR),
         default='rescue')
+parser_create.add_argument('-c', '--callback',
+        help='name or path of an executable file that is called after the '
+        'entry has been created with name of template and ip as arguments')
 parser_create.set_defaults(func=create)
 
 
