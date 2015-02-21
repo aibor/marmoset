@@ -22,10 +22,11 @@ class PXEClientConfig:
 
     @classmethod
     def all(cls):
-        entries = os.listdir(PXEClientConfig.CFG_DIR)
-        if entries.count('default'):
-            entries.remove('default')
-        return [ PXEClientConfig(x) for x in entries ]
+        entries = []
+        for entry_file in os.listdir(PXEClientConfig.CFG_DIR):
+            if re.match('[0-9A-Z]{8}', entry_file):
+                entries.append(PXEClientConfig(entry_file))
+        return entries
 
 
     def exists(self):
