@@ -28,14 +28,23 @@ def list(args):
 
 def remove(args):
     pxe_client = PXEClientConfig(args.ip_address)
-    print(pxe_client.remove())
+    if pxe_client.remove():
+        print('Removed', pxe_client.file_path())
+    else:
+        print('No entry found for', pxe_client.ip_address)
 
 
 parser = argparse.ArgumentParser(description='Manage client specific PXE configs')
-subparsers = parser.add_subparsers(title='subcommands')
+commands = parser.add_subparsers(title='commands')
+command_rescue = commands.add_parser('rescue',
+        help='manage client specific PXE configs',
+        aliases=['pxe'])
+
+subcommands_rescue = command_rescue.add_subparsers(title='rescue subcommands')
 
 
-parser_create = subparsers.add_parser('create',
+
+parser_create = subcommands_rescue.add_parser('create',
         help='create a PXE config for an IP address',
         aliases=['c', 'add'])
 parser_create.add_argument('ip_address',
@@ -50,13 +59,13 @@ parser_create.add_argument('-c', '--callback',
 parser_create.set_defaults(func=create)
 
 
-parser_list = subparsers.add_parser('list',
+parser_list = subcommands_rescue.add_parser('list',
         help='list IP addresses for all currently present PXE client config',
         aliases=['l'])
 parser_list.set_defaults(func=list)
 
 
-parser_remove = subparsers.add_parser('remove',
+parser_remove = subcommands_rescue.add_parser('remove',
         help='remove a PXE config for an IP address',
         aliases=['r', 'rem', 'd', 'del'])
 parser_remove.add_argument('ip_address', help='IP address to remove PXE entry for')
