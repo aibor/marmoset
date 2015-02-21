@@ -39,8 +39,11 @@ class PXEClientConfig:
 
 
     def remove(self):
-        os.remove(self.file_path())
-        return True
+        if self.exists():
+            os.remove(self.file_path())
+            return True
+        else:
+            return False
 
 
     def file_name(self):
