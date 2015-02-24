@@ -1,80 +1,95 @@
-from flask import Flask, request, url_for
-from werkzeug.exceptions import NotFound
-from lib.flask_ext import *
-from os import listdir
+#!/usr/bin/env python3
+
 from lib.pxe_client_config import PXEClientConfig
+from lib.webserver import webserver
+from os import listdir, system
+import argparse
+
 try:
     import settings
+    if 'CFG_DIR' in vars(settings):
+        PXEClientConfig.CFG_DIR = settings.CFG_DIR
 except: pass
 
 
-if 'settings' in globals() and 'CFG_DIR' in vars(settings):
-    PXEClientConfig.CFG_DIR = settings.CFG_DIR
+def run_webserver(args):
+    webserver.run()
 
 
-app = make_json_app(__name__)
+def create(args):
+    pxe_client = PXEClientConfig(args.ip_address)
+    entryfile = pxe_client.create(args.template)
+    print('Created', entryfile)
+    if 'callback' in args and args.callback:
+        system('{} {} {} {}'.format(args.callback, args.template,
+            pxe_client.ip_address, entryfile))
 
 
-@app.route('/rescue', methods=['POST'])
-@requires_auth
-def create_rescue_entry():
-    '''Add a rescue entry for the given ip_address.'''
+def list(args):
+    for pxe_client in PXEClientConfig.all():
+        print(pxe_client.ip_address)
 
-    ip_address = request.form['ip_address']
 
-    if 'template' in request.form:
-        template = request.form['template']
+def remove(args):
+    pxe_client = PXEClientConfig(args.ip_address)
+    if pxe_client.remove():
+        print('Removed', pxe_client.file_path())
     else:
-        template = 'rescue'
-
-    re = PXEClientConfig(ip_address)
-
-    if re.exists():
-        return json_response({}, 409)
-
-    try:
-        re.create(template)
-    except FileNotFoundError:
-        return json_response(
-                {'message': 'Template not found: ' +
-                    template +
-                    '. Available templates: ' +
-                    ', '.join(listdir(PXEClientConfig.TMPL_DIR)) },
-                400
-                )
+        print('No entry found for', pxe_client.ip_address)
 
 
-    location = url_for('rescue_entry', ip_address=ip_address)
-    return json_response(vars(re), 201, {'Location': location})
+parser = argparse.ArgumentParser(description='Manage client specific PXE configs')
+
+commands = parser.add_subparsers(title='commands')
 
 
-@app.route('/rescue/<ip_address>', methods=['GET'])
-@requires_auth
-def rescue_entry(ip_address):
-    '''Lookup a rescue entry for the given ip_address.'''
-
-    re = PXEClientConfig(ip_address)
-
-    if re.exists():
-        return json_response(vars(re), 200)
-    else:
-        raise NotFound
+command_webserver = commands.add_parser('webserver',
+        help='start a webserver for API usage',
+        aliases=['server'])
+command_webserver.set_defaults(func=run_webserver)
 
 
-@app.route('/rescue/<ip_address>', methods=['DELETE'])
-@requires_auth
-def remove_rescue_entry(ip_address):
-    '''Remove a rescue entry for the given ip_address.'''
-
-    re = PXEClientConfig(ip_address)
-
-    if re.exists():
-        re.remove()
-        return json_response({}, 204)
-    else:
-        raise NotFound
+command_pxe = commands.add_parser('pxe',
+        help='manage client specific PXE configs',
+        aliases=['pxe'])
 
 
-if __name__ == "__main__":
-    app.run()
+subcommands_pxe = command_pxe.add_subparsers(title='pxe subcommands')
+
+pxe_create = subcommands_pxe.add_parser('create',
+        help='create a PXE config for an IP address',
+        aliases=['c', 'add'])
+pxe_create.add_argument('ip_address',
+        help='IP address to create PXE entry for')
+pxe_create.add_argument('-t', '--template',
+        help='the PXE config template to use',
+        choices=listdir(PXEClientConfig.TMPL_DIR),
+        default='rescue')
+pxe_create.add_argument('-c', '--callback',
+        help='name or path of an executable file that is called after the '
+        'entry has been created with name of template and ip as arguments')
+pxe_create.set_defaults(func=create)
+
+
+pxe_list = subcommands_pxe.add_parser('list',
+        help='list IP addresses for all currently present PXE client config',
+        aliases=['l'])
+pxe_list.set_defaults(func=list)
+
+
+pxe_remove = subcommands_pxe.add_parser('remove',
+        help='remove a PXE config for an IP address',
+        aliases=['r', 'rem', 'd', 'del'])
+pxe_remove.add_argument('ip_address', help='IP address to remove PXE entry for')
+pxe_remove.set_defaults(func=remove)
+
+
+args = parser.parse_args()
+
+
+if 'func' in args:
+    args.func(args)
+else:
+    print('No subcommand given')
+    parser.print_help()
 
