@@ -5,7 +5,7 @@ from .flask_ext import *
 from .pxe_client_config import PXEClientConfig
 
 
-webserver = make_json_app(__name__)
+webserver = make_json_app('marmoset')
 
 
 @webserver.route('/pxe', methods=['POST'])
