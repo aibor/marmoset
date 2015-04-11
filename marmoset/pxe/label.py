@@ -16,6 +16,7 @@ class Label:
 
     @classmethod
     def find(cls, name):
+        '''Return the instance with the given name.'''
         for i in cls.__instances:
             if name == i.name:
                 return i

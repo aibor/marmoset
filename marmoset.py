@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-from marmoset import pxe
-from marmoset.webserver import webserver
+from marmoset import pxe, webserver
 from os import listdir, system
 import argparse, sys, configparser
 
@@ -14,15 +13,18 @@ config['PXELabel']  = {}
 config.read('marmoset.conf')
 
 if config.options('PXELabel').__len__() == 0:
-    raise Label.Exception('No PXELabel defined in config')
+    raise pxe.Label.Exception('No PXELabel defined in config')
 
+# Create pxe label list.
 [pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]
 
 pxe.ClientConfig.CFG_DIR = config['PXEConfig']['ConfigDirectory']
+webserver.auth.Username  = config['Webserver']['Username']
+webserver.auth.Password  = config['Webserver']['Password']
 
 
 def run_webserver(args):
-    webserver.run()
+    webserver.app.run()
 
 
 def create(args):
@@ -34,7 +36,7 @@ def create(args):
 
 def list(args):
     for pxe_client in pxe.ClientConfig.all():
-        print(pxe_client.ip_address)
+        print('%s: %s' % (pxe_client.ip_address, pxe_client.label))
 
 
 def remove(args):
