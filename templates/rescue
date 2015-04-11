@@ -1,9 +1,0 @@
-INCLUDE pxelinux.cfg/default
-DEFAULT instantboot
-
-LABEL instantboot
-  KERNEL cmd.c32
-  APPEND rescue HASH=PWHASH
-
-PROMPT 0
-TIMEOUT 1

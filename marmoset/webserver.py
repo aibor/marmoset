@@ -2,7 +2,7 @@ from os import listdir
 from flask import Flask, request, url_for
 from werkzeug.exceptions import NotFound
 from .flask.extensions import *
-from .pxe_client_config import PXEClientConfig
+from .pxe_client_config import *
 
 
 webserver = make_json_app('marmoset')
@@ -11,31 +11,20 @@ webserver = make_json_app('marmoset')
 @webserver.route('/pxe', methods=['POST'])
 @requires_auth
 def create_pxe_entry():
-    '''Add a PXE entry for the given ip_address.'''
+    '''Add a PXE entry for the given ip_address with a given password.'''
 
-    ip_address = request.form['ip_address']
+    data = request.form
 
-    if 'template' in request.form:
-        template = request.form['template']
-    else:
-        template = 'rescue'
+    ip_address  = data['ip_address']
+    password    = data['password']  if 'password' in data   else None
+    label       = data['label']     if 'label' in data      else PXELabel[0].name
 
-    re = PXEClientConfig(ip_address)
-
-    if re.exists():
-        return json_response({}, 409)
+    re = PXEClientConfig(ip_address, password)
 
     try:
-        re.create(template)
-    except FileNotFoundError:
-        return json_response(
-                {'message': 'Template not found: ' +
-                    template +
-                    '. Available templates: ' +
-                    ', '.join(listdir(PXEClientConfig.TMPL_DIR)) },
-                400
-                )
-
+        efile, password = re.create(label, password)
+    except e:
+        return json_response({'message': str(e)}, 400)
 
     location = url_for('pxe_entry', ip_address=ip_address)
     return json_response(vars(re), 201, {'Location': location})

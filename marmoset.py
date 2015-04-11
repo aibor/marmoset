@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 
-from marmoset.pxe_client_config import PXEClientConfig, Template
+from marmoset.pxe_client_config import *
 from marmoset.webserver import webserver
 from os import listdir, system
 import argparse, sys, configparser
 
-try:
-    import settings
-    if 'CFG_DIR' in vars(settings):
-        PXEClientConfig.CFG_DIR = settings.CFG_DIR
-    if 'TEMPLATES' in vars(settings):
-        [Template(x, settings.TEMPLATES[x]) for x in settings.TEMPLATES]
-except Exception as e:
-    print("Warning: ", e)
+config = configparser.ConfigParser()
+
+config['Webserver'] = {'Username': 'admin', 'Password': 'secret'}
+config['PXEConfig'] = {'ConfigDirectory': '/srv/tftp/pxelinux.cfg'}
+config['PXELabel']  = {}
+
+config.read('marmoset.conf')
+
+if config.options('PXELabel').__len__() == 0:
+    raise PXELabel.Exception('No PXELabel defined in config')
+
+[PXELabel(n, cb) for n, cb in config['PXELabel'].items()]
+
+PXEClientConfig.CFG_DIR = config['PXEConfig']['ConfigDirectory']
 
 
 def run_webserver(args):
@@ -20,12 +26,10 @@ def run_webserver(args):
 
 
 def create(args):
-    pxe_client = PXEClientConfig(args.ip_address)
-    entryfile = pxe_client.create(args.template)
-    print('Created', entryfile)
-    if 'callback' in args and args.callback:
-        system('{} {} {} {}'.format(args.callback, args.template,
-            pxe_client.ip_address, entryfile))
+    pxe_client = PXEClientConfig(args.ip_address, args.password)
+    pxe_client.create(args.label)
+    msg = 'Created %s with password %s' 
+    print(msg % (pxe_client.file_path(), pxe_client.password))
 
 
 def list(args):
@@ -60,17 +64,19 @@ command_pxe = commands.add_parser('pxe',
 subcommands_pxe = command_pxe.add_subparsers(title='pxe subcommands')
 
 pxe_create = subcommands_pxe.add_parser('create',
-        help='create a PXE config for an IP address',
+        help='Create a PXE config for an IP address.',
         aliases=['c', 'add'])
 pxe_create.add_argument('ip_address',
         help='IP address to create PXE entry for')
-pxe_create.add_argument('-t', '--template',
-        help='the PXE config template to use',
-        choices=Template.all(),
-        default='rescue')
-pxe_create.add_argument('-c', '--callback',
-        help='name or path of an executable file that is called after the '
-        'entry has been created with name of template and ip as arguments')
+pxe_create.add_argument('-l', '--label',
+        help='the PXE label to set',
+        choices=PXELabel.names(),
+        default=PXELabel.names()[0])
+pxe_create.add_argument('-p', '--password',
+        help='''Password which is set as the root password if the chosen label
+        supports this. If a password is necessary for the choosen label and
+        none is given random password is created and returned''',
+        default=None)
 pxe_create.set_defaults(func=create)
 
 
