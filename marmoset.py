@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 
-from lib.pxe_client_config import PXEClientConfig
-from lib.webserver import webserver
+from marmoset.pxe_client_config import PXEClientConfig, Template
+from marmoset.webserver import webserver
 from os import listdir, system
-import argparse
+import argparse, sys, configparser
 
 try:
     import settings
     if 'CFG_DIR' in vars(settings):
         PXEClientConfig.CFG_DIR = settings.CFG_DIR
-except: pass
+    if 'TEMPLATES' in vars(settings):
+        [Template(x, settings.TEMPLATES[x]) for x in settings.TEMPLATES]
+except Exception as e:
+    print("Warning: ", e)
 
 
 def run_webserver(args):
@@ -63,7 +66,7 @@ pxe_create.add_argument('ip_address',
         help='IP address to create PXE entry for')
 pxe_create.add_argument('-t', '--template',
         help='the PXE config template to use',
-        choices=listdir(PXEClientConfig.TMPL_DIR),
+        choices=Template.all(),
         default='rescue')
 pxe_create.add_argument('-c', '--callback',
         help='name or path of an executable file that is called after the '

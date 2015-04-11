@@ -1,7 +1,7 @@
 from os import listdir
 from flask import Flask, request, url_for
 from werkzeug.exceptions import NotFound
-from .flask_ext import *
+from .flask.extensions import *
 from .pxe_client_config import PXEClientConfig
 
 
