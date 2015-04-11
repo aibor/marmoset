@@ -2,7 +2,7 @@ from os import listdir
 from flask import Flask, request, url_for
 from werkzeug.exceptions import NotFound
 from .flask.extensions import *
-from .pxe_client_config import *
+from . import pxe
 
 
 webserver = make_json_app('marmoset')
@@ -16,13 +16,13 @@ def create_pxe_entry():
     data = request.form
 
     ip_address  = data['ip_address']
-    password    = data['password']  if 'password' in data   else None
-    label       = data['label']     if 'label' in data      else PXELabel[0].name
+    password    = data['password'] if 'password' in data else None
+    label       = data['label']    if 'label' in data    else pxe.Label[0].name
 
-    re = PXEClientConfig(ip_address, password)
-
+    re = pxe.ClientConfig(ip_address, password)
+    
     try:
-        efile, password = re.create(label, password)
+        efile, password = re.create(pxe.Label.find(args.label))
     except e:
         return json_response({'message': str(e)}, 400)
 
@@ -35,7 +35,7 @@ def create_pxe_entry():
 def pxe_entry(ip_address):
     '''Lookup a PXE entry for the given ip_address.'''
 
-    re = PXEClientConfig(ip_address)
+    re = pxe.ClientConfig(ip_address)
 
     if re.exists():
         return json_response(vars(re), 200)
@@ -48,7 +48,7 @@ def pxe_entry(ip_address):
 def remove_pxe_entry(ip_address):
     '''Remove a PXE entry for the given ip_address.'''
 
-    re = PXEClientConfig(ip_address)
+    re = pxe.ClientConfig(ip_address)
 
     if re.exists():
         re.remove()

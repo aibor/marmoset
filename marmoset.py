@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from marmoset.pxe_client_config import *
+from marmoset import pxe
 from marmoset.webserver import webserver
 from os import listdir, system
 import argparse, sys, configparser
@@ -14,11 +14,11 @@ config['PXELabel']  = {}
 config.read('marmoset.conf')
 
 if config.options('PXELabel').__len__() == 0:
-    raise PXELabel.Exception('No PXELabel defined in config')
+    raise Label.Exception('No PXELabel defined in config')
 
-[PXELabel(n, cb) for n, cb in config['PXELabel'].items()]
+[pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]
 
-PXEClientConfig.CFG_DIR = config['PXEConfig']['ConfigDirectory']
+pxe.ClientConfig.CFG_DIR = config['PXEConfig']['ConfigDirectory']
 
 
 def run_webserver(args):
@@ -26,19 +26,19 @@ def run_webserver(args):
 
 
 def create(args):
-    pxe_client = PXEClientConfig(args.ip_address, args.password)
-    pxe_client.create(args.label)
+    pxe_client = pxe.ClientConfig(args.ip_address, args.password)
+    pxe_client.create(pxe.Label.find(args.label))
     msg = 'Created %s with password %s' 
     print(msg % (pxe_client.file_path(), pxe_client.password))
 
 
 def list(args):
-    for pxe_client in PXEClientConfig.all():
+    for pxe_client in pxe.ClientConfig.all():
         print(pxe_client.ip_address)
 
 
 def remove(args):
-    pxe_client = PXEClientConfig(args.ip_address)
+    pxe_client = pxe.ClientConfig(args.ip_address)
     if pxe_client.remove():
         print('Removed', pxe_client.file_path())
     else:
@@ -70,8 +70,8 @@ pxe_create.add_argument('ip_address',
         help='IP address to create PXE entry for')
 pxe_create.add_argument('-l', '--label',
         help='the PXE label to set',
-        choices=PXELabel.names(),
-        default=PXELabel.names()[0])
+        choices=pxe.Label.names(),
+        default=pxe.Label.names()[0])
 pxe_create.add_argument('-p', '--password',
         help='''Password which is set as the root password if the chosen label
         supports this. If a password is necessary for the choosen label and

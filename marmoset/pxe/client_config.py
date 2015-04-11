@@ -2,51 +2,7 @@ import os, re, crypt, base64
 from textwrap import dedent
 from string import Template as Stringtemplate
 
-
-__all__ = ['PXELabel', 'PXEClientConfig']
-
-
-class PXELabel:
-    class Exception(Exception):
-
-        def __init__(self, msg):
-            self.msg = msg
-
-        def __str__(self):
-            return self.msg
-
-
-    __instances = []
-
-
-    @classmethod
-    def find(cls, name):
-        for i in cls.__instances:
-            if name == i.name:
-                return i
-        raise Exception("No PXELabel with name '%s' found." % (name,))
-
-
-    @classmethod
-    def names(cls):
-        """Return the names of all instances of the class."""
-        return [x.name for x in cls.__instances]
-
-
-    def __init__(self, name, callback=None):
-        if callback in (None, ''):
-            callback=None
-        elif not PXEClientConfig.has_callback(callback):
-            msg = "Callback method '%s' doesn't exist. Available: %s"
-            callbacklist = ', '.join(PXEClientConfig.callbacks())
-            raise Exception(msg % (callback, callbacklist))
-
-        self.__class__.__instances.append(self)
-        self.name = name
-        self.callback = callback
-
-
-class PXEClientConfig:
+class ClientConfig:
 
     CFG_DIR = '/srv/tftp/pxelinux.cfg/'
 
@@ -64,9 +20,9 @@ class PXEClientConfig:
     @classmethod
     def all(cls):
         entries = []
-        for entry_file in os.listdir(PXEClientConfig.CFG_DIR):
+        for entry_file in os.listdir(ClientConfig.CFG_DIR):
             if re.match('[0-9A-Z]{8}', entry_file):
-                entries.append(PXEClientConfig(entry_file))
+                entries.append(ClientConfig(entry_file))
         return entries
 
 
@@ -98,16 +54,14 @@ class PXEClientConfig:
         return os.path.isfile(self.file_path())
 
 
-    def create(self, label):
-        pxe_label = PXELabel.find(label)
-
+    def create(self, pxe_label):
         if pxe_label.callback is None:
             options = None
         else:
             func = getattr(self, 'cb_%s' % pxe_label.callback)
             options = func()
 
-        content = self.__expand_template(label, options)
+        content = self.__expand_template(pxe_label.name, options)
         self.__write_config_file(content)
 
 
@@ -128,7 +82,7 @@ class PXEClientConfig:
         if name is None:
             name = self.file_name()
 
-        cfgdir = PXEClientConfig.CFG_DIR.rstrip('/')
+        cfgdir = ClientConfig.CFG_DIR.rstrip('/')
         return cfgdir + '/' + name
 
     
@@ -136,7 +90,7 @@ class PXEClientConfig:
         if path is None:
             path = self.file_path()
 
-        os.makedirs(PXEClientConfig.CFG_DIR, exist_ok=True)
+        os.makedirs(ClientConfig.CFG_DIR, exist_ok=True)
         f = open(path, 'w')
         f.write(content)
         f.close()
@@ -145,7 +99,7 @@ class PXEClientConfig:
     def __expand_template(self, label, options = None):
         if options is None:
             options = ''
-        template = PXEClientConfig.CFG_TEMPLATE
+        template = ClientConfig.CFG_TEMPLATE
         return template.substitute(label=label, 
                                    options=options)
 
