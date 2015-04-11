@@ -1,0 +1,20 @@
+# Example config file with all config directives and their default
+# values. 
+
+[Webserver]
+Username: 'admin'
+Password: 'secret'
+
+[PXEConfig]
+ConfigDirectory: /srv/tftp/pxelinux.cfg/
+
+# The PXELabel section has no defaults, as its entries depend on
+# the PXE configuration. The syntax is `label: callbackmethod`.
+# If the entry doesn't need any callback, just let callbackmethod
+# blank.
+#
+#[PXELabel]
+#rescue: setpwhash
+#freebsd: createpwhashfile
+#openbsd:
+

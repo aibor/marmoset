@@ -12,8 +12,18 @@ Monkeying around with client specific PXE configurations.
 
 ## Setup
 
-Update `settings.py` before using marmoset!
+Create `marmoset.conf` before using marmoset! See `Configuration` for details.
 
+
+## Configuration
+
+The configuration file has to be placed in the app's root directory
+as `marmoset.conf`. It is necessary to define a `PXELabel` section.
+The first entry in this section will be the default label.
+
+All other sections are optional and have defaults set.
+
+An example file can be found as `marmoset.conf.example`.
 
 
 ## Usage
@@ -31,20 +41,18 @@ with the command:
 
 #### Create entries
 
-Create an PXE entry with the default template:
+Create an PXE entry with the default label:
 
     ./marmoset.py pxe create 3.4.5.6
 
-Create an PXE entry for a non-default template:
+Create an PXE entry for a non-default label:
 
-    ./marmoset.py pxe create -t freebsd 3.4.5.6
+    ./marmoset.py pxe create -l freebsd 3.4.5.6
 
-If you need to do some additional magic after creating an entry, a
-command can be passed, which is called after successfully creating the
-entry. It will get passed the template name, the IP address and the
-path to the entry file as arguments.
+If the used label has a callback method set that sets a custom root
+password for the PXE boot target, you can provide a pasword: 
 
-    ./marmoset.py pxe c -t freebsd -c /path/to/script 3.4.5.6
+    ./marmoset.py pxe c -l freebsd -p SoSecretPW 3.4.5.6
 
 
 #### List entries
@@ -70,13 +78,21 @@ Start it like this:
 
 #### Routes
 
-Create a new PXE config entry
+List all currently set entries:
 
-    curl -u admin:secret --data 'ip_address=10.10.1.1' http://localhost:5000/pxe
+    curl -u admin:secret http://localhost:5000/pxe
+    # {entries: [
+    #   {"ip_address": "1.2.3.4", "label": "rescue"}
+    # ]}
+    
+Create a new PXE config entry (label and password are optional)
+
+    curl -u admin:secret --data 'ip_address=10.10.1.1&label=rescue&password=SeCrEt' \
+    http://localhost:5000/pxe
     # 201 on success
     # 409 if there is already an entry
 
-Check if there is an entry currently
+Check if there is an entry currently set
 
     curl -u admin:secret http://localhost:5000/pxe/10.10.1.1
     # 200 if found
