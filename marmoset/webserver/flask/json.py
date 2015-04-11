@@ -15,7 +15,7 @@ def error(ex=None, code=500, headers={}):
     return response(code, headers, message=str(ex))
 
 
-def create(import_name, **kwargs):
+def app(import_name, **kwargs):
     """
     Creates a JSON-oriented Flask app.
 

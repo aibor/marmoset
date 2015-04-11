@@ -26,7 +26,6 @@ def __check_auth(username, password):
     password combination is valid.
     """
     global Username, Password
-    print(Username, Password)
     return username == Username and password == Password
 
 
