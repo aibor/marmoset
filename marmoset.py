@@ -13,7 +13,7 @@ config['PXELabel']  = {}
 config.read('marmoset.conf')
 
 if config.options('PXELabel').__len__() == 0:
-    raise pxe.Label.Exception('No PXELabel defined in config')
+    raise Exception('No PXELabel defined in config')
 
 # Create pxe label list.
 [pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]

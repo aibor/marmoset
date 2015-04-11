@@ -2,12 +2,17 @@ from flask import Flask, jsonify
 from werkzeug.exceptions import default_exceptions, HTTPException
 
 
-def response(obj, code=200, headers={}):
-    response = jsonify(obj)
+def response(code=200, headers={}, *args, **kwargs):
+    response = jsonify(*args, **kwargs)
     response.status_code = code
     response.headers.extend(headers)
 
     return response
+
+
+def error(ex=None, code=500, headers={}):
+    code = ex.code if isinstance(ex, HTTPException) else code
+    return response(code, headers, message=str(ex))
 
 
 def create(import_name, **kwargs):
@@ -20,14 +25,10 @@ def create(import_name, **kwargs):
 
     { "message": "405: Method Not Allowed" }
     """
-    def make_json_error(ex):
-        code = ex.code if isinstance(ex, HTTPException) else 500
-        return json_response({'message': str(ex)}, code)
-
     app = Flask(import_name, **kwargs)
 
     for code in default_exceptions.keys():
-        app.error_handler_spec[None][code] = make_json_error
+        app.error_handler_spec[None][code] = error
 
     return app
 

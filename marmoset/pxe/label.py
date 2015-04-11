@@ -1,15 +1,8 @@
 from .client_config import ClientConfig
+from .exceptions import InputError
 
 
 class Label:
-    class Exception(Exception):
-
-        def __init__(self, msg):
-            self.msg = msg
-
-        def __str__(self):
-            return self.msg
-
 
     __instances = []
 
@@ -20,7 +13,7 @@ class Label:
         for i in cls.__instances:
             if name == i.name:
                 return i
-        raise Exception("No PXELabel with name '%s' found." % (name,))
+        raise InputError("No PXELabel with name '%s' found." % (name,))
 
 
     @classmethod
@@ -35,10 +28,9 @@ class Label:
         elif not ClientConfig.has_callback(callback):
             msg = "Callback method '%s' doesn't exist. Available: %s"
             callbacklist = ', '.join(ClientConfig.callbacks())
-            raise Exception(msg % (callback, callbacklist))
+            raise InputError(msg % (callback, callbacklist))
 
         self.__class__.__instances.append(self)
         self.name = name
         self.callback = callback
-
 

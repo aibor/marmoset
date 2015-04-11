@@ -6,54 +6,55 @@ from . import pxe
 
 
 app = json_app.create('marmoset')
+auth.for_all_routes(app)
+
+
+@app.errorhandler(401)
+def unautorized(ex):
+    headers = {'WWW-Authenticate': 'Basic realm="Marmoset"'}
+    return json_app.error(ex, headers=headers)
 
 
 @app.route('/pxe', methods=['GET'])
-@auth.required
 def pxe_entries():
     '''List all PXE entries.'''
-
-    entries = [vars(c) for c in pxe.ClientConfig.all()]
-    return json_app.response({'entries': entries}, 200)
+    return json_app.response(200,
+            pxe=[vars(c) for c in pxe.ClientConfig.all()])
 
 
 @app.route('/pxe', methods=['POST'])
-@auth.required
 def create_pxe_entry():
     '''Add a PXE entry for the given ip_address with a given password.'''
-
-    data = request.form
-
+    data        = request.form
     ip_address  = data['ip_address']
     password    = data['password'] if 'password' in data else None
     label       = data['label']    if 'label' in data    else pxe.Label.names()[0]
-
-    re = pxe.ClientConfig(ip_address, password)
+    re          = pxe.ClientConfig(ip_address, password)
     
     try:
         re.create(pxe.Label.find(label))
+    except pxe.exceptions.InputError as e:
+        return json_app.error(e, 400)
     except Exception as e:
-        return json_app.response({'message': str(e)}, 400)
+        return json_app.error(e, 500)
 
     location = url_for('pxe_entry', ip_address=ip_address)
-    return json_app.response(vars(re), 201, {'Location': location})
+    return json_app.response(201, {'Location': location}, vars(re))
 
 
 @app.route('/pxe/<ip_address>', methods=['GET'])
-@auth.required
 def pxe_entry(ip_address):
     '''Lookup a PXE entry for the given ip_address.'''
 
     re = pxe.ClientConfig(ip_address)
 
     if re.exists():
-        return json_app.response(vars(re), 200)
+        return json_app.response(200, **vars(re))
     else:
         raise NotFound
 
 
 @app.route('/pxe/<ip_address>', methods=['DELETE'])
-@auth.required
 def remove_pxe_entry(ip_address):
     '''Remove a PXE entry for the given ip_address.'''
 
@@ -61,7 +62,13 @@ def remove_pxe_entry(ip_address):
 
     if re.exists():
         re.remove()
-        return json_app.response({}, 204)
+        return json_app.response(204, {}, {})
     else:
         raise NotFound
 
+
+#@app.route('/vm', methods=['GET'])
+#@app.route('/vm', methods=['POST'])
+#@app.route('/vm/<uuid>', methods=['GET'])
+#@app.route('/vm/<uuid>', methods=['PUT'])
+#@app.route('/vm/<uuid>', methods=['DELETE'])
