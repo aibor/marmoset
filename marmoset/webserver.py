@@ -16,14 +16,14 @@ def unautorized(ex):
 
 
 @app.route('/pxe', methods=['GET'])
-def pxe_entries():
+def pxe_list():
     '''List all PXE entries.'''
     return json_app.response(200,
             pxe=[vars(c) for c in pxe.ClientConfig.all()])
 
 
 @app.route('/pxe', methods=['POST'])
-def create_pxe_entry():
+def pxe_create():
     '''Add a PXE entry for the given ip_address with a given password.'''
     data        = request.form
     ip_address  = data['ip_address']
@@ -43,7 +43,7 @@ def create_pxe_entry():
 
 
 @app.route('/pxe/<ip_address>', methods=['GET'])
-def pxe_entry(ip_address):
+def pxe_show(ip_address):
     '''Lookup a PXE entry for the given ip_address.'''
 
     re = pxe.ClientConfig(ip_address)
@@ -55,7 +55,7 @@ def pxe_entry(ip_address):
 
 
 @app.route('/pxe/<ip_address>', methods=['DELETE'])
-def remove_pxe_entry(ip_address):
+def pxe_delete(ip_address):
     '''Remove a PXE entry for the given ip_address.'''
 
     re = pxe.ClientConfig(ip_address)
@@ -67,8 +67,19 @@ def remove_pxe_entry(ip_address):
         raise NotFound
 
 
-#@app.route('/vm', methods=['GET'])
-#@app.route('/vm', methods=['POST'])
-#@app.route('/vm/<uuid>', methods=['GET'])
-#@app.route('/vm/<uuid>', methods=['PUT'])
-#@app.route('/vm/<uuid>', methods=['DELETE'])
+@app.route('/vm', methods=['GET'])
+def vm_list():
+    pass
+@app.route('/vm', methods=['POST'])
+def vm_create():
+    pass
+@app.route('/vm/<uuid>', methods=['GET'])
+def vm_show():
+    pass
+@app.route('/vm/<uuid>', methods=['PUT'])
+def vm_update():
+    pass
+@app.route('/vm/<uuid>', methods=['DELETE'])
+def vm_delete():
+    pass
+

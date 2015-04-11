@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from marmoset import pxe, webserver
 from os import listdir, system
 import argparse, sys, configparser
+from marmoset import pxe
 
 config = configparser.ConfigParser()
 
@@ -19,11 +19,12 @@ if config.options('PXELabel').__len__() == 0:
 [pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]
 
 pxe.ClientConfig.CFG_DIR = config['PXEConfig']['ConfigDirectory']
-webserver.auth.Username  = config['Webserver']['Username']
-webserver.auth.Password  = config['Webserver']['Password']
 
 
 def run_webserver(args):
+    from marmoset import webserver
+    webserver.auth.Username  = config['Webserver']['Username']
+    webserver.auth.Password  = config['Webserver']['Password']
     webserver.app.run()
 
 
