@@ -2,8 +2,20 @@
 # values. 
 
 [Webserver]
-Username: 'admin'
-Password: 'secret'
+# Settings for HTTP Basic Auth
+Username: admin
+Password: secret
+BasicRealm: marmoset
+# IP address or hostname and port to bind to
+Host: 127.0.0.1
+Port: 5000
+# Domain that is used by clients to address the server. It is used to
+# build absolute urls. If unset, it defaults to 'localhost'.
+ServerName:
+Debug: 
+
+[Libvirt]
+URI: qemu:///system
 
 [PXEConfig]
 ConfigDirectory: /srv/tftp/pxelinux.cfg/

@@ -18,6 +18,7 @@ def required(f):
 
 def for_all_routes(app):
     app.before_request(__authenticate)
+    app.config['HTTP_BASIC_AUTH_REALM'] = app.name
     return app
 
 

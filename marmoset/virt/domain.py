@@ -1,11 +1,10 @@
-from .virt import Virt, connection
 from .exceptions import Error
-from . import domain_states
+from . import connection, domain_states
 import xml.etree.ElementTree as ET
 from libvirt import libvirtError
 
 
-class Domain(Virt):
+class Domain():
 
     class Disk:
 
