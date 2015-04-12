@@ -2,13 +2,14 @@
 
 from os import listdir, system
 import argparse, sys, configparser
-from marmoset import pxe
+from marmoset import pxe, virt
 
 config = configparser.ConfigParser()
 
 config['Webserver'] = {'Username': 'admin', 'Password': 'secret'}
 config['PXEConfig'] = {'ConfigDirectory': '/srv/tftp/pxelinux.cfg'}
 config['PXELabel']  = {}
+config['Libvirt']   = {'URI': 'qemu:///system'}
 
 config.read('marmoset.conf')
 
@@ -19,6 +20,8 @@ if config.options('PXELabel').__len__() == 0:
 [pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]
 
 pxe.ClientConfig.CFG_DIR = config['PXEConfig']['ConfigDirectory']
+
+virt.virt.URI = config['Libvirt']['URI']
 
 
 def run_webserver(args):

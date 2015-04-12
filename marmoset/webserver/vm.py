@@ -1,5 +1,6 @@
 from flask import Blueprint, request, url_for
-#from marmoset import virt
+from marmoset import virt
+from .flask import json
 
 
 blueprint = Blueprint('vm', __name__)
@@ -7,7 +8,8 @@ blueprint = Blueprint('vm', __name__)
 
 @blueprint.route('/', methods=['GET'])
 def vm_list():
-    pass
+    domains = virt.Domain.all()
+    return json.response(200, vm=[d.attributes for d in domains])
 
 
 @blueprint.route('/', methods=['POST'])
