@@ -1,60 +1,53 @@
-from flask import Blueprint, request, url_for
+from flask import request
+from flask.ext.restful import reqparse, Resource, url_for
 from werkzeug.exceptions import NotFound
 from marmoset import pxe
-from .flask import json
 
 
-blueprint = Blueprint('pxe', __name__)
+parser = reqparse.RequestParser()
+parser.add_argument('ip_address', type=str)
+parser.add_argument('password', type=str, default=None)
+parser.add_argument('label', type=str, choices=pxe.Label.names(), default=pxe.Label.names()[0])
+
+class PXECollection(Resource):
+
+    def get(self):
+        '''List all PXE entries.'''
+        return [vars(c) for c in pxe.ClientConfig.all()]
 
 
-@blueprint.route('/', methods=['GET'])
-def pxe_list():
-    '''List all PXE entries.'''
-    return json.response(200,
-            pxe=[vars(c) for c in pxe.ClientConfig.all()])
+    def post(self):
+        '''Add a PXE entry for the given ip_address with a given password.'''
+        args = parser.parse_args() 
+        re = pxe.ClientConfig(args['ip_address'], args['password'])
+
+        try:
+            re.create(pxe.Label.find(args['label']))
+            location = url_for('pxeobject', _method='GET', ip_address=re.ip_address)
+            return vars(re), 201, {'Location': location}
+        except pxe.exceptions.InputError as e:
+            abort(400, message=str(e))
+        except Exception as e:
+            abort(500, message=str(e))
 
 
-@blueprint.route('/', methods=['POST'])
-def pxe_create():
-    '''Add a PXE entry for the given ip_address with a given password.'''
-    data        = request.form
-    ip_address  = data['ip_address']
-    password    = data['password'] if 'password' in data else None
-    label       = data['label']    if 'label' in data    else pxe.Label.names()[0]
-    re          = pxe.ClientConfig(ip_address, password)
-    
-    try:
-        re.create(pxe.Label.find(label))
-    except pxe.exceptions.InputError as e:
-        return json.error(e, 400)
-    except Exception as e:
-        return json.error(e, 500)
+class PXEObject(Resource):
 
-    location = url_for('pxe_entry', ip_address=ip_address)
-    return json.response(201, {'Location': location}, vars(re))
+    def get(self, ip_address):
+        '''Lookup a PXE entry for the given ip_address.'''
+        re = pxe.ClientConfig(ip_address)
+        if re.exists():
+            return vars(re)
+        else:
+            abort(404)
 
 
-@blueprint.route('/<ip_address>', methods=['GET'])
-def pxe_show(ip_address):
-    '''Lookup a PXE entry for the given ip_address.'''
-
-    re = pxe.ClientConfig(ip_address)
-
-    if re.exists():
-        return json.response(200, **vars(re))
-    else:
-        raise NotFound
-
-
-@blueprint.route('/<ip_address>', methods=['DELETE'])
-def pxe_delete(ip_address):
-    '''Remove a PXE entry for the given ip_address.'''
-
-    re = pxe.ClientConfig(ip_address)
-
-    if re.exists():
-        re.remove()
-        return json.response(204, {}, {})
-    else:
-        raise NotFound
+    def delete(self,ip_address):
+        '''Remove a PXE entry for the given ip_address.'''
+        re = pxe.ClientConfig(ip_address)
+        if re.exists():
+            re.remove()
+            return '', 204
+        else:
+            abort(404)
 

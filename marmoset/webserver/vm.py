@@ -1,33 +1,61 @@
-from flask import Blueprint, request, url_for
+from flask import request
+from flask.ext.restful import reqparse, Resource, url_for, abort
+from werkzeug.exceptions import NotFound
 from marmoset import virt
-from .flask import json
 
 
-blueprint = Blueprint('vm', __name__)
+parser = reqparse.RequestParser()
+parser.add_argument('user', type=str, required=True)
+parser.add_argument('name', type=str, required=True)
+parser.add_argument('memory', type=int, required=True)
+parser.add_argument('cpu', type=int, default=1)
+parser.add_argument('disk', type=int, required=True)
+
+command_parser = reqparse.RequestParser()
+command_parser.add_argument('command', type=str, required=True,
+        choices=['start', 'stop', 'shutdown', 'reset'])
+command_parser.add_argument('params', type=str, action='append', default=[])
 
 
-@blueprint.route('/', methods=['GET'])
-def vm_list():
-    domains = virt.Domain.all()
-    return json.response(200, vm=[d.attributes for d in domains])
+def find_domain(uuid):
+    domain = virt.Domain.find(uuid)
+    if domain is None:
+        abort(404)
+    else:
+        return domain
 
 
-@blueprint.route('/', methods=['POST'])
-def vm_create():
-    pass
+class VMCollection(Resource):
+
+    def get(self):
+        domains = virt.Domain.all()
+        return [d.attributes for d in domains]
+
+    def post(self):
+        pass
 
 
-@blueprint.route('/<uuid>', methods=['GET'])
-def vm_show():
-    pass
+class VMObject(Resource):
+
+    def get(self, uuid):
+        return find_domain(uuid).attributes
+
+    def put(self, uuid):
+        pass
+
+    def delete(self, uuid):
+        pass
 
 
-@blueprint.route('/<uuid>', methods=['PUT'])
-def vm_update():
-    pass
+class VMCommand(Resource):
 
-
-@blueprint.route('/<uuid>', methods=['DELETE'])
-def vm_delete():
-    pass
+    def put(self, uuid):
+        args = command_parser.parse_args() 
+        print(args)
+        domain = find_domain(uuid)
+        try:
+            res = getattr(domain, args['command'])(*args['params'])
+            return ('', 204) if not res else (res, 200)
+        except Exception as e:
+            abort(422, message = str(e))
 

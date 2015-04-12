@@ -1,9 +1,14 @@
+from contextlib import contextmanager, closing
 import libvirt
+
 
 URI = 'qemu:///system'
 
+
+@contextmanager
 def connection():
-    return libvirt.open(URI)
+    with closing(libvirt.open(URI)) as conn:
+        yield conn
 
 
 class Virt:
