@@ -18,7 +18,7 @@ command_parser.add_argument('params', type=str, action='append', default=[])
 
 
 def find_domain(uuid):
-    domain = virt.Domain.find_by(uuid=uuid)
+    domain = virt.Domain.find_by('uuid', uuid)
     if domain is None:
         abort(404)
     else:
@@ -29,7 +29,7 @@ class VMCollection(Resource):
 
     def get(self):
         domains = virt.Domain.all()
-        return [d.attributes for d in domains]
+        return [d.attributes() for d in domains]
 
     def post(self):
         pass
@@ -38,7 +38,7 @@ class VMCollection(Resource):
 class VMObject(Resource):
 
     def get(self, uuid):
-        return find_domain(uuid).attributes
+        return find_domain(uuid).attributes()
 
     def put(self, uuid):
         pass

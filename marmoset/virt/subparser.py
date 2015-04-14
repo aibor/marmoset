@@ -1,24 +1,21 @@
+from pprint import pprint
 from .domain import Domain
 
 
 def create(args):
     pass
 
-
 def list(args):
     for domain in Domain.all():
-        print(d.attributes)
-
+        pprint(domain.attributes())
 
 def edit(args):
-    domain = Domain.find_by(id=args.id)
-
+    domain = Domain.find_by('id', args.id)
 
 def remove(args):
-    domain = Domain.find_by(id=args.id)
+    domain = Domain.find_by('id', args.id)
     if domain.remove():
         print('Removed', domain.name())
-
 
 def add_to(parser, name, **kwargs):
     command = parser.add_parser(name,
