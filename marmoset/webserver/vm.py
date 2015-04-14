@@ -18,7 +18,7 @@ command_parser.add_argument('params', type=str, action='append', default=[])
 
 
 def find_domain(uuid):
-    domain = virt.Domain.find(uuid)
+    domain = virt.Domain.find_by(uuid=uuid)
     if domain is None:
         abort(404)
     else:

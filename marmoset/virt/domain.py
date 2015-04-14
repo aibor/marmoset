@@ -47,10 +47,15 @@ class Domain():
         return [Domain(d) for d in domains]
 
     @classmethod
-    def find(cls, uuid):
+    def find_by(cls, uuid=None, id=None):
+        if not bool(uuid) ^ bool(id):
+            raise Exception('Either uuid or id must be given.')
         with connection() as conn:
             try:
-                domain = conn.lookupByUUIDString(uuid)
+                if uuid:
+                    domain = conn.lookupByUUIDString(uuid)
+                elif id:
+                    domain = conn.lookupByID(id)
                 domain = Domain(domain)
             except libvirtError:
                 domain = None

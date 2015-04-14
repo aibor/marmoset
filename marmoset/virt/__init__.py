@@ -1,7 +1,6 @@
 from contextlib import contextmanager, closing
 import libvirt
 from .exceptions import Error
-from . import subparser
 
 URI = 'qemu:///system'
 
@@ -9,4 +8,7 @@ URI = 'qemu:///system'
 def connection():
     with closing(libvirt.open(URI)) as conn:
         yield conn
+
+from . import subparser
+from .domain import Domain
 

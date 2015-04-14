@@ -3,12 +3,34 @@
 from argparse import ArgumentParser
 from marmoset import config, pxe, virt, webserver
 
+def show_config(*args):
+    with open('/dev/stdout', 'w') as stdout:
+        config.write(stdout)
+
 parser   = ArgumentParser(description='Manage libvirt and pxe configs')  
 commands = parser.add_subparsers(title='commands')
 
-webserver.subparser.add_to(commands, 'webserver')
-pxe.subparser.add_to(commands, 'pxe')
-virt.subparser.add_to(commands, 'vm')
+
+config_cmd = commands.add_parser('config', help='show config directives used')
+config_cmd.set_defaults(func=show_config)
+
+
+webserver.subparser.add_to(commands,
+    'webserver',
+    help='start a webserver for API usage',
+    aliases=['server']
+)
+
+pxe.subparser.add_to(commands,
+    'pxe',
+    help='manage client specific PXE configs'
+) 
+
+virt.subparser.add_to(commands,
+    'vm',
+    help='manage libvirt domains and their associated resources'
+)
+
 
 args = parser.parse_args()
 

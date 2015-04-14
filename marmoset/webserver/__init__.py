@@ -1,8 +1,14 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask.ext import restful
 from marmoset import config
 from .flask import auth
 from . import pxe, vm
+
+
+def jsonify_nl(*args, **kwargs):
+    resp = jsonify(*args, **kwargs)
+    resp.set_data(resp.get_data() + b'\n')
+    return resp
 
 
 def run(args):
@@ -20,6 +26,12 @@ def run(args):
     api.add_resource(vm.VMCollection, '/vm')
     api.add_resource(vm.VMObject, '/vm/<uuid>')
     api.add_resource(vm.VMCommand, '/vm/<uuid>/action')
+
+    @app.errorhandler(404)
+    def not_found(ex):
+        resp = jsonify_nl(message="Route not found.", status=404)
+        resp.status_code = 404
+        return resp
 
     print(app.url_map)
 

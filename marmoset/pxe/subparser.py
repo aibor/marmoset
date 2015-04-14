@@ -21,16 +21,14 @@ def remove(args):
         print('No entry found for', pxe_client.ip_address)
 
 
-def add_to(parser, name):
-    command = parser.add_parser(name,
-            help='manage client specific PXE configs'
-            )
-
-    subcommands = command.add_subparsers(title='pxe subcommands')
+def add_to(parser, name, **kwargs):
+    command     = parser.add_parser(name, **kwargs)
+    subcommands = command.add_subparsers(title='%s subcommands' % name)
 
     pxe_create = subcommands.add_parser('create',
         help='Create a PXE config for an IP address.',
         aliases=['c', 'add'])
+    pxe_create.set_defaults(func=create)
     pxe_create.add_argument('ip_address',
         help='IP address to create PXE entry for')
     pxe_create.add_argument('-l', '--label',
@@ -42,7 +40,6 @@ def add_to(parser, name):
         supports this. If a password is necessary for the choosen label and
         none is given random password is created and returned''',
         default=None)
-    pxe_create.set_defaults(func=create)
 
     pxe_list = subcommands.add_parser('list',
         help='list IP addresses for all currently present PXE client config',
@@ -51,7 +48,7 @@ def add_to(parser, name):
 
     pxe_remove = subcommands.add_parser('remove',
         help='remove a PXE config for an IP address',
-        aliases=['r', 'rem', 'd', 'del'])
-    pxe_remove.add_argument('ip_address', help='IP address to remove PXE entry for')
+        aliases=['r', 'delete', 'del', 'd'])
     pxe_remove.set_defaults(func=remove)
+    pxe_remove.add_argument('ip_address', help='IP address to remove PXE entry for')
 
