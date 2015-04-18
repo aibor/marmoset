@@ -2,9 +2,11 @@ from .exceptions import Error
 from .network import Network
 from . import connection, with_unit, domain_states, Virt, Child
 from libvirt import libvirtError
+from string import Template
 
 
 class Domain(Virt):
+
     func = dict(
         all     = 'listAllDomains',
         uuid    = 'lookupByUUIDString',
@@ -18,7 +20,7 @@ class Domain(Virt):
             self.uuid       = domain.UUIDString()
             self.name       = domain.name()
             self.memory     = self.memory()
-            self.cpu        = self.cpu()
+            self.vcpu       = self.vcpu()
             self.state      = self.state()
             self.disks      = [d.attributes() for d in self.disks()]
             self.interfaces = [i.attributes() for i in self.interfaces()]
@@ -26,7 +28,7 @@ class Domain(Virt):
     def memory(self):
         return with_unit(int(self.get_xml('memory').text)*1024)
 
-    def cpu(self):
+    def vcpu(self):
         return self.get_xml('vcpu').text
 
     def get_info(self):
@@ -58,6 +60,18 @@ class Domain(Virt):
 
     def reset(self):
         self._command('reset')
+
+    def undefine(self):
+        self._command('undefine')
+        self._resource = None
+
+    def save(self):
+        if not self._resource:
+            with open(self.template_file()) as f:
+                template = Template(f.read())
+            xml = template.substitute(self.attributes())
+            with connection() as conn:
+                self._resource = conn.defineXML(xml)
 
 
     def _command(self, cmd, *args, **kwargs):
