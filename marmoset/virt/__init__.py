@@ -1,8 +1,11 @@
 from contextlib import contextmanager, closing
+from functools import wraps
 from os import path
+from re import match
 import libvirt
 from .exceptions import Error
 import xml.etree.ElementTree as ET
+from string import Template
 
 
 URI = 'qemu:///system'
@@ -21,18 +24,58 @@ def with_unit(value):
     Return a string of the converted numerical @value with the proper
     unit name.
     """
-    units = ['', 'Ki', 'Mi', 'Gi', 'Ti']
+    units = ['b', 'KiB', 'MiB', 'GiB', 'TiB']
     for unit in units:
         if value < 1024 or unit == units[-1]: break
         value = value / 1024
-    return "%d %sB" % (value, unit)
+    return "%d %s" % (value, unit)
+
+def parse_unit(obj):
+    """
+    Return value as int and unit as string parsed from @obj.
+    @obj may be an int, which will always return 'b' as unit, or a
+    string, which will be parsed for a unit (defaults to 'b' as well).
+    """
+    if obj is str:
+        m = match('^(\d+) *(\w+)?$', obj)
+        if m:
+            value, unit = m.groups() 
+    else:
+        value, unit = obj, None
+    return int(value), (unit if unit else 'b')
 
 
 class Virt:
 
-    func = {}
-
     TEMPLATE_DIR = path.join(path.dirname(__file__), 'templates')
+
+    @classmethod
+    def template_file(cls):
+        file_name = cls.__name__.lower() + '.xml'
+        return path.join(cls.TEMPLATE_DIR, file_name)
+
+    @classmethod
+    def xml_template(cls, **substitutes):
+        with open(cls.template_file()) as f:
+            template = Template(f.read())
+        return template.substitute(substitutes)
+
+
+    def attributes(self):
+        attrs = {}
+        for name, func in self.__class__.__dict__.items():
+            if isinstance(func, property):
+                value = getattr(self, name)
+                if isinstance(value, list):
+                    attrs[name] = [v.attributes() for v in value]
+                else:
+                    attrs[name] = value
+        return attrs
+       
+
+class Parent(Virt):
+
+    _func = {}
 
     @classmethod
     def all(cls):
@@ -43,25 +86,25 @@ class Virt:
         libvirt function to call as value.
         """
         with connection() as conn:
-            all = getattr(conn, cls.func['all'])()
+            all = getattr(conn, cls._func['all'])()
         return [cls(i) for i in all]
 
     @classmethod
     def find_by(cls, attr, value):
         """"
-        Return a class instance identified by id, uuid or name.
+        Return a class instance identified by specific attribute.
         
         @attr: identifier attribute
         @value: value to search for
         
         In order to work, the resource must provide the class variable
-        'func', which has to be a dict with at least the keys id, uuid
-        and name and the respective libvirt function name to call as
-        values.
+        'func', which has to be a dict with at least the name ot the 
+        attributes to search for (like id, uuid, name) as keys and the
+        respective libvirt function name to call as values.
         """
         with connection() as conn:
             try:
-                funcname = cls.func[attr]
+                funcname = cls._func[attr]
                 func = getattr(conn, funcname)
                 return cls(func(value))
             except KeyError:
@@ -71,13 +114,8 @@ class Virt:
                 return None
 
 
-    def attributes(self, **kw):
-        """
-        Set and get attributes of the resource. Items in @kw with empty
-        or None values will be dropped.
-        """
-        vars(self).update({k: v for k, v in kw.items() if v})
-        return {k: v for k, v in vars(self).items() if k != '_resource'}
+    def __init__(self, resource):
+        self._resource = resource
 
     def get_xml(self, node=None):
         """
@@ -87,16 +125,9 @@ class Virt:
         xml = ET.fromstring(self._resource.XMLDesc())
         return xml if node is None else xml.find(node)
 
-    def template_file(self):
-        return path.join(self.__class__.TEMPLATE_DIR,
-                         self.__class__.__name__.lower() + '.xml')
 
+class Child(Virt):
 
-
-class Child:
-
-    _attrs = []
-       
     def __init__(self, xml, resource):
         """
         @xml: Libvirt XML Description of the resource part
@@ -105,10 +136,9 @@ class Child:
         self._xml = xml
         self._resource = resource
 
-    def attributes(self):
-        return {a: getattr(self, a)() for a in self.__class__._attrs}
 
-from . import subparser
 from .domain import Domain
 from .network import Network
+from .storage import Storage
+from . import subparser
 

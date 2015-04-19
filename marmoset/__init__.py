@@ -6,7 +6,7 @@ config = configparser.ConfigParser()
 config['Webserver'] = dict(
     Username    = 'admin',
     Password    = 'secret',
-    BasicRealm  = __name__,
+    BasicRealm  = __name__
 )
 
 config['PXEConfig'] = dict(
@@ -17,7 +17,9 @@ config['PXELabel']  = dict(
 )
 
 config['Libvirt']   = dict(
-    URI = 'qemu:///system'
+    URI = 'qemu:///system',
+    Network = 'internet',
+    StoragePool = 'storage'
 )
 
 
@@ -32,4 +34,10 @@ else:
 
 pxe.ClientConfig.CFG_DIR    = config['PXEConfig'].get('ConfigDirectory')
 virt.URI                    = config['Libvirt'].get('URI')
+
+if config['Libvirt'].get('XMLTemplateDirectory'):
+    virt.Virt.TEMPLATE_DIR = config['Libvirt']['XMLTemplateDirectory']
+
+virt.Network.DEFAULT = config['Libvirt'].get('Network', 'default')
+virt.Storage.DEFAULT = config['Libvirt'].get('Storage', 'default')
 

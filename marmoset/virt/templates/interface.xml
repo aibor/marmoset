@@ -1,5 +1,4 @@
 <interface type='network'>
-  <mac address='${mac_address}'/>
   <source network='${network}'/>
   <model type='${model}'/>
 </interface>

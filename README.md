@@ -1,12 +1,6 @@
 # Marmoset
 
-Monkeying around with client specific PXE configurations.
-
-
-
-## Requirements
-
-* python 3.3+
+Monkeying around with virtual machines and pxe configs.
 
 
 
@@ -15,15 +9,26 @@ Monkeying around with client specific PXE configurations.
 Create `marmoset.conf` before using marmoset! See `Configuration` for details.
 
 
-## Configuration
+### Requirements
+
+* python 3.3+
+* libvirt-python3 (or similar package that provides libvirt python
+  bindings)
+* flask
+
+
+### Configuration
 
 The configuration file has to be placed in the app's root directory
 as `marmoset.conf`. It is necessary to define a `PXELabel` section.
 The first entry in this section will be the default label.
 
 All other sections are optional and have defaults set.
-
 An example file can be found as `marmoset.conf.example`.
+
+If you want to customize the XML templates for libvirt objects, copy
+the template dir `marmoset/virt/templates/` and specify the new path
+in the `Libvirt` section.
 
 
 ## Usage
@@ -36,10 +41,16 @@ Marmoset can be used via CLI directly or as a HTTP server.
 To see all available subcommands and their aliases, just run the script
 with the command:
 
-    ./marmoset.py pxe
+    ./marmoset.py -h
+
+Each subcommand provides its own help text:
+
+    ./marmoset.py pxe -h
 
 
-#### Create entries
+#### PXE
+
+##### Create entries
 
 Create an PXE entry with the default label:
 
@@ -55,18 +66,27 @@ password for the PXE boot target, you can provide a pasword:
     ./marmoset.py pxe c -l freebsd -p SoSecretPW 3.4.5.6
 
 
-#### List entries
+##### List entries
 
 List all entries:
 
     ./marmoset.py pxe list
 
 
-#### Remove entries
+##### Remove entries
 
 Remove the entry for an IP address:
 
     ./marmoset.py pxe remove 3.4.5.6
+
+
+#### VM
+
+##### List VMs
+
+List all defined libvirt domains and their attributes:
+
+    ./marmoset.py vm list
 
 
 ### HTTP server
@@ -77,6 +97,8 @@ Start it like this:
 
 
 #### Routes
+
+##### PXE
 
 List all currently set entries:
 
@@ -102,6 +124,46 @@ Destroy an entry
 
     curl -u admin:secret -X DELETE http://localhost:5000/pxe/10.10.1.1
     # 204 on success
+
+
+##### VM
+
+List all currently defined VMs:
+
+    curl -u admin:secret http://localhost:5000/vm
+    # [
+    #     {
+    #         "disks": [
+    #             {
+    #                 "bus": "virtio",
+    #                 "capacity": "1 GiB",
+    #                 "device": "disk",
+    #                 "path": "/mnt/data/test-pool/testo",
+    #                 "target": "hda",
+    #                 "type": "block"
+    #             }
+    #         ],
+    #         "interfaces": [
+    #             {
+    #                 "host": null,
+    #                 "ip_address": null,
+    #                 "mac_address": "52:54:00:47:b0:09",
+    #                 "model": "virtio",
+    #                 "network": "default",
+    #                 "type": "network"
+    #             }
+    #         ],
+    #         "memory": "2 GiB",
+    #         "name": "test",
+    #         "state": {
+    #             "reason": "unknown",
+    #             "state": "shutoff"
+    #         },
+    #         "user": "testuser",
+    #         "uuid": "cd412122-ec04-46d7-ba12-a7757aa5af11",
+    #         "vcpu": "1"
+    #     }
+    # ]
 
 
 

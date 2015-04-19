@@ -16,6 +16,16 @@ Debug:
 
 [Libvirt]
 URI: qemu:///system
+# If you want to provide your own XML templates for domain creation,
+# put them in a dir and set the path here. See the default templates
+# in marmoset/virt/templates for a start.
+XMLTemplateDirectory: 
+# Name of the libvirt network to connect the domain interfaces to if
+# no network name is given on creation.
+Network:
+# Name of the storage pool a storage volume is created in, if no
+# storage name is given.
+Storage: 
 
 [PXEConfig]
 ConfigDirectory: /srv/tftp/pxelinux.cfg/
