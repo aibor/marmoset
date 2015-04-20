@@ -60,12 +60,12 @@ class Domain(Parent):
     @property
     def disks(self):
         disks = self.get_xml('devices').findall('disk')
-        return [Domain.Disk(disk, self._resource) for disk in disks]
+        return [Domain.Disk(disk, self) for disk in disks]
 
     @property
     def interfaces(self):
         interfaces = self.get_xml('devices').findall('interface')
-        return [Domain.Interface(iface, self._resource) for iface in interfaces]
+        return [Domain.Interface(iface, self) for iface in interfaces]
 
     def info(self):
         keys = ['state', 'memory_max', 'memory', 'vcpu', 'cpu_time']
@@ -124,7 +124,7 @@ class Domain(Parent):
 
         def blockinfo(self):
             keys    = ['capacity', 'allocation', 'physical']
-            values  = self._resource.blockInfo(self.target)
+            values  = self._parent._resource.blockInfo(self.target)
             return dict(zip(keys, values))
 
 
@@ -158,5 +158,4 @@ class Domain(Parent):
             host = self.host
             if host:
                 return host.ip_address
-            
 

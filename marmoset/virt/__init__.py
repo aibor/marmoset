@@ -128,13 +128,13 @@ class Parent(Virt):
 
 class Child(Virt):
 
-    def __init__(self, xml, resource):
+    def __init__(self, xml, parent):
         """
         @xml: Libvirt XML Description of the resource part
-        @resource: Libvirt object of the parent resource
+        @parent: Parent object instance the child belongs to
         """
         self._xml = xml
-        self._resource = resource
+        self._parent = parent
 
 
 from .domain import Domain
