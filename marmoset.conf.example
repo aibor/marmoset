@@ -1,6 +1,11 @@
 # Example config file with all config directives and their default
 # values. 
 
+# De-/Activate Modules of marmoset if you don't need them
+[Modules]
+PXE: True
+VM: True
+
 [Webserver]
 # Settings for HTTP Basic Auth
 Username: admin

@@ -2,7 +2,6 @@ from flask import Flask, jsonify
 from flask.ext import restful
 from marmoset import config
 from .flask import auth
-from . import pxe, vm
 
 
 def jsonify_nl(*args, **kwargs):
@@ -20,12 +19,17 @@ def run(args):
     app.config['SERVER_NAME'] = config['Webserver'].get('ServerName')
 
     api = restful.Api(app)
+    
+    if config['Modules'].getboolean('PXE'):
+        from . import pxe
+        api.add_resource(pxe.PXECollection, '/pxe')
+        api.add_resource(pxe.PXEObject, '/pxe/<ip_address>')
 
-    api.add_resource(pxe.PXECollection, '/pxe')
-    api.add_resource(pxe.PXEObject, '/pxe/<ip_address>')
-    api.add_resource(vm.VMCollection, '/vm')
-    api.add_resource(vm.VMObject, '/vm/<uuid>')
-    api.add_resource(vm.VMCommand, '/vm/<uuid>/action')
+    if config['Modules'].getboolean('VM'):
+        from . import vm
+        api.add_resource(vm.VMCollection, '/vm')
+        api.add_resource(vm.VMObject, '/vm/<uuid>')
+        api.add_resource(vm.VMCommand, '/vm/<uuid>/action')
 
     @app.errorhandler(404)
     def not_found(ex):

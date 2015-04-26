@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
-from marmoset import config, pxe, virt, webserver
+from marmoset import config, webserver
 
 def show_config(*args):
     with open('/dev/stdout', 'w') as stdout:
@@ -21,15 +21,21 @@ webserver.subparser.add_to(commands,
     aliases=['server']
 )
 
-pxe.subparser.add_to(commands,
-    'pxe',
-    help='manage client specific PXE configs'
-) 
+if config['Modules'].getboolean('PXE'):
+    from marmoset import pxe
 
-virt.subparser.add_to(commands,
-    'vm',
-    help='manage libvirt domains and their associated resources'
-)
+    pxe.subparser.add_to(commands,
+        'pxe',
+        help='manage client specific PXE configs'
+    ) 
+
+if config['Modules'].getboolean('VM'):
+    from marmoset import virt
+
+    virt.subparser.add_to(commands,
+        'vm',
+        help='manage libvirt domains and their associated resources'
+    )
 
 
 args = parser.parse_args()

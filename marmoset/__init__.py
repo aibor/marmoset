@@ -1,7 +1,8 @@
 import configparser
-from . import pxe, virt
 
 config = configparser.ConfigParser()
+
+config['Modules'] = dict(PXE = 'True', VM = 'True')
 
 config['Webserver'] = dict(
     Username    = 'admin',
@@ -25,19 +26,25 @@ config['Libvirt']   = dict(
 
 config.read('marmoset.conf')
 
+if config['Modules'].getboolean('PXE'):
+    from . import pxe
 
-if config.options('PXELabel').__len__() == 0:
-    raise Exception('No PXELabel defined in config')
-else:
-    # Create pxe label list.
-    [pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]
+    if config.options('PXELabel').__len__() == 0:
+        raise Exception('No PXELabel defined in config')
+    else:
+        # Create pxe label list.
+        [pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]
 
-pxe.ClientConfig.CFG_DIR    = config['PXEConfig'].get('ConfigDirectory')
-virt.URI                    = config['Libvirt'].get('URI')
+    pxe.ClientConfig.CFG_DIR    = config['PXEConfig'].get('ConfigDirectory')
 
-if config['Libvirt'].get('XMLTemplateDirectory'):
-    virt.Virt.TEMPLATE_DIR = config['Libvirt']['XMLTemplateDirectory']
+if config['Modules'].getboolean('VM'):
+    from . import virt
 
-virt.Network.DEFAULT = config['Libvirt'].get('Network', 'default')
-virt.Storage.DEFAULT = config['Libvirt'].get('Storage', 'default')
+    virt.URI                    = config['Libvirt'].get('URI')
+
+    if config['Libvirt'].get('XMLTemplateDirectory'):
+        virt.Virt.TEMPLATE_DIR = config['Libvirt']['XMLTemplateDirectory']
+
+    virt.Network.DEFAULT = config['Libvirt'].get('Network', 'default')
+    virt.Storage.DEFAULT = config['Libvirt'].get('Storage', 'default')
 
