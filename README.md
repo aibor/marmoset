@@ -103,24 +103,40 @@ Start it like this:
 List all currently set entries:
 
     curl -u admin:secret http://localhost:5000/pxe
-    # {entries: [
-    #   {"ip_address": "1.2.3.4", "label": "rescue"}
-    # ]}
+    #   [
+    #     {
+    #       "ip_address": "1.2.3.4",
+    #       "label": "rescue"
+    #     }
+    #   ]
     
-Create a new PXE config entry (label and password are optional)
+Create a new PXE config entry. Label defaults to "rescue". If no
+password is given, a random password is generated and returned. Takes
+JSON Input as well:
 
     curl -u admin:secret --data 'ip_address=10.10.1.1&label=rescue&password=SeCrEt' \
     http://localhost:5000/pxe
     # 201 on success
+    #   {
+    #      "ip_address": "10.10.1.1",
+    #      "label": "rescue",
+    #      "password": "SeCrEt"
+    #   }
+    #
     # 409 if there is already an entry
 
-Check if there is an entry currently set
+Check if there is an entry currently set:
 
     curl -u admin:secret http://localhost:5000/pxe/10.10.1.1
     # 200 if found
+    #   {
+    #      "ip_address": "10.10.1.1",
+    #      "label": "rescue"
+    #   }
+    #
     # 404 if not found
 
-Destroy an entry
+Destroy an entry:
 
     curl -u admin:secret -X DELETE http://localhost:5000/pxe/10.10.1.1
     # 204 on success
