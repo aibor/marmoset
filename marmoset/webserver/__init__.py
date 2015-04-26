@@ -33,6 +33,12 @@ def run(args):
         resp.status_code = 404
         return resp
 
+    @app.errorhandler(401)
+    def not_found(ex):
+        resp = jsonify_nl(message="Unauthorized", status=401)
+        resp.status_code = 401
+        return resp
+
     print(app.url_map)
 
     app.run(
