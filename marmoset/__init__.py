@@ -1,3 +1,4 @@
+from os import path
 import configparser
 
 config = configparser.ConfigParser()
@@ -23,8 +24,8 @@ config['Libvirt']   = dict(
     StoragePool = 'storage'
 )
 
-
-config.read('marmoset.conf')
+config_path = path.join(path.dirname(__file__), '../{}.conf'.format(__name__))
+config.read(config_path)
 
 if config['Modules'].getboolean('PXE'):
     from . import pxe
