@@ -10,7 +10,7 @@ def jsonify_nl(*args, **kwargs):
     return resp
 
 
-def run(args):
+def app(config):
     auth.Username  = config['Webserver'].get('Username')
     auth.Password  = config['Webserver'].get('Password')
 
@@ -43,13 +43,14 @@ def run(args):
         resp.status_code = 401
         return resp
 
-    print(app.url_map)
+    return app
 
-    app.run(
+def run(config, args):
+    webserver = app(config)
+    print(webserver.url_map)
+    webserver.run(
         host = config['Webserver'].get('Host'),
         port = config['Webserver'].get('Port'),
         debug = config['Webserver'].getboolean('Debug')
     )
-
-from . import subparser
 

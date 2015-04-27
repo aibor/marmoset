@@ -41,11 +41,11 @@ Marmoset can be used via CLI directly or as a HTTP server.
 To see all available subcommands and their aliases, just run the script
 with the command:
 
-    ./marmoset.py -h
+    $ ./marmoset.py -h
 
 Each subcommand provides its own help text:
 
-    ./marmoset.py pxe -h
+    $ ./marmoset.py pxe -h
 
 
 #### PXE
@@ -54,30 +54,30 @@ Each subcommand provides its own help text:
 
 Create an PXE entry with the default label:
 
-    ./marmoset.py pxe create 3.4.5.6
+    $ ./marmoset.py pxe create 3.4.5.6
 
 Create an PXE entry for a non-default label:
 
-    ./marmoset.py pxe create -l freebsd 3.4.5.6
+    $ ./marmoset.py pxe create -l freebsd 3.4.5.6
 
 If the used label has a callback method set that sets a custom root
 password for the PXE boot target, you can provide a pasword: 
 
-    ./marmoset.py pxe c -l freebsd -p SoSecretPW 3.4.5.6
+    $ ./marmoset.py pxe c -l freebsd -p SoSecretPW 3.4.5.6
 
 
 ##### List entries
 
 List all entries:
 
-    ./marmoset.py pxe list
+    $ ./marmoset.py pxe list
 
 
 ##### Remove entries
 
 Remove the entry for an IP address:
 
-    ./marmoset.py pxe remove 3.4.5.6
+    $ ./marmoset.py pxe remove 3.4.5.6
 
 
 #### VM
@@ -86,14 +86,18 @@ Remove the entry for an IP address:
 
 List all defined libvirt domains and their attributes:
 
-    ./marmoset.py vm list
+    $ ./marmoset.py vm list
 
 
 ### HTTP server
 
 Start it like this:
 
-    ./marmoset.py server
+    $ ./marmoset.py server
+
+Or with gunicorn:
+  
+    $ gunicorn marmoset.app:app    
 
 
 #### Routes

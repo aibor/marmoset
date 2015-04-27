@@ -140,5 +140,4 @@ class Child(Virt):
 from .domain import Domain
 from .network import Network
 from .storage import Storage
-from . import subparser
 

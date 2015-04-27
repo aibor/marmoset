@@ -1,51 +1,6 @@
-from os import path
-import configparser
+from . import config, cli
 
-config = configparser.ConfigParser()
-
-config['Modules'] = dict(PXE = 'True', VM = 'True')
-
-config['Webserver'] = dict(
-    Username    = 'admin',
-    Password    = 'secret',
-    BasicRealm  = __name__
-)
-
-config['PXEConfig'] = dict(
-    ConfigDirectory = '/srv/tftp/pxelinux.cfg'
-)
-
-config['PXELabel']  = dict(
-)
-
-config['Libvirt']   = dict(
-    URI = 'qemu:///system',
-    Network = 'internet',
-    StoragePool = 'storage'
-)
-
-config_path = path.join(path.dirname(__file__), '../{}.conf'.format(__name__))
-config.read(config_path)
-
-if config['Modules'].getboolean('PXE'):
-    from . import pxe
-
-    if config.options('PXELabel').__len__() == 0:
-        raise Exception('No PXELabel defined in config')
-    else:
-        # Create pxe label list.
-        [pxe.Label(n, cb) for n, cb in config['PXELabel'].items()]
-
-    pxe.ClientConfig.CFG_DIR    = config['PXEConfig'].get('ConfigDirectory')
-
-if config['Modules'].getboolean('VM'):
-    from . import virt
-
-    virt.URI                    = config['Libvirt'].get('URI')
-
-    if config['Libvirt'].get('XMLTemplateDirectory'):
-        virt.Virt.TEMPLATE_DIR = config['Libvirt']['XMLTemplateDirectory']
-
-    virt.Network.DEFAULT = config['Libvirt'].get('Network', 'default')
-    virt.Storage.DEFAULT = config['Libvirt'].get('Storage', 'default')
+def run(config_file = None):
+    cfg = config.load(config_file)
+    cli.parse(cfg)
 

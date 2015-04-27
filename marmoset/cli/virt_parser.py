@@ -1,5 +1,5 @@
 from pprint import pprint
-from .domain import Domain
+from ..virt.domain import Domain
 
 
 def create(args):
