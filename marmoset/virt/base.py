@@ -36,7 +36,7 @@ def parse_unit(obj):
     @obj may be an int, which will always return 'b' as unit, or a
     string, which will be parsed for a unit (defaults to 'b' as well).
     """
-    if obj is str:
+    if isinstance(obj, str):
         m = match('^(\d+) *(\w+)?$', obj)
         if m:
             value, unit = m.groups() 

@@ -19,10 +19,10 @@ class PXECollection(Resource):
     def post(self):
         '''Add a PXE entry for the given ip_address with a given password.'''
         args = parser.parse_args() 
-        re = pxe.ClientConfig(args['ip_address'], args['password'])
+        re = pxe.ClientConfig(args.ip_address, args.password)
 
         try:
-            re.create(pxe.Label.find(args['label']))
+            re.create(pxe.Label.find(args.label))
             location = url_for('pxeobject', _method='GET', ip_address=re.ip_address)
             return vars(re), 201, {'Location': location}
         except pxe.exceptions.InputError as e:

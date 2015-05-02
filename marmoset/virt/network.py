@@ -2,6 +2,8 @@ from . import base
 
 
 class Network(base.Parent):
+    DEFAULT = 'default'
+
     _func = dict(
         all     = 'listAllNetworks',
         uuid    = 'networkLookupByUUIDString',
@@ -32,6 +34,11 @@ class Network(base.Parent):
 
     def knows_host(self, mac_address):
         return False if self.get_host(mac_address) is None else True
+
+    def knows_ip_address(self, ip_address):
+        xpath = "./ip/dhcp/host[@ip='{}']".format(ip_address)
+        host = self.get_xml().find(xpath)
+        return False if host is None else True
 
     def add_host(self, mac_address, ip_address, name = ''):
         attrs = {k: v for k, v in locals().items() if k != 'self'}

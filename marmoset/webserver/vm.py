@@ -7,9 +7,10 @@ from .. import virt
 parser = reqparse.RequestParser()
 parser.add_argument('user', type=str, required=True)
 parser.add_argument('name', type=str, required=True)
-parser.add_argument('memory', type=int, required=True)
+parser.add_argument('memory', type=str, required=True)
 parser.add_argument('cpu', type=int, default=1)
-parser.add_argument('disk', type=int, required=True)
+parser.add_argument('disk', type=str, required=True)
+parser.add_argument('ip_address', type=str, required=True)
 
 command_parser = reqparse.RequestParser()
 command_parser.add_argument('command', type=str, required=True,
@@ -32,7 +33,11 @@ class VMCollection(Resource):
         return [d.attributes() for d in domains]
 
     def post(self):
-        pass
+        args = parser.parse_args() 
+        #try:
+        return virt.create(args).attributes()
+        #except Exception as e:
+        #    abort(422, message = str(e))
 
 
 class VMObject(Resource):
@@ -44,7 +49,11 @@ class VMObject(Resource):
         pass
 
     def delete(self, uuid):
-        pass
+        try:
+            virt.remove(dict(uuid = uuid))
+            return '', 204
+        except Exception as e:
+            abort(422, message = str(e))
 
 
 class VMCommand(Resource):
@@ -54,7 +63,7 @@ class VMCommand(Resource):
         print(args)
         domain = find_domain(uuid)
         try:
-            res = getattr(domain, args['command'])(*args['params'])
+            res = getattr(domain, args.command)(*args.params)
             return ('', 204) if not res else (res, 200)
         except Exception as e:
             abort(422, message = str(e))

@@ -1,21 +1,4 @@
-from pprint import pprint
-from ..virt.domain import Domain
-
-
-def create(args):
-    pass
-
-def list(args):
-    for domain in Domain.all():
-        pprint(domain.attributes())
-
-def edit(args):
-    domain = Domain.find_by('id', args.id)
-
-def remove(args):
-    domain = Domain.find_by('id', args.id)
-    if domain.remove():
-        print('Removed', domain.name())
+from .. import virt
 
 def add_to(parser, name, **kwargs):
     command = parser.add_parser(name,
@@ -26,7 +9,7 @@ def add_to(parser, name, **kwargs):
     vm_create = subcommands.add_parser('create',
         help='Create a new VM.',
         aliases=['c', 'add'])
-    vm_create.set_defaults(func=create)
+    vm_create.set_defaults(func=virt.create)
     vm_create.add_argument('-i', '--ip_address',
         help='main IP address that is set with DHCP',
         required=True)
@@ -49,17 +32,17 @@ def add_to(parser, name, **kwargs):
     vm_list = subcommands.add_parser('list',
         help='list all currently defined VMs',
         aliases=['l'])
-    vm_list.set_defaults(func=list)
+    vm_list.set_defaults(func=virt.list)
 
     vm_edit = subcommands.add_parser('edit',
         help='edit specs or configs of a VM',
         aliases=['e', 'ed'])
-    vm_edit.set_defaults(func=edit)
+    vm_edit.set_defaults(func=virt.edit)
     vm_edit.add_argument('id', help='the libvirt ID of the VM')
 
     vm_remove = subcommands.add_parser('remove',
         help='remove a VM',
         aliases=['r', 'delete', 'del', 'd'])
-    vm_remove.set_defaults(func=remove)
+    vm_remove.set_defaults(func=virt.remove)
     vm_remove.add_argument('id', help='the libvirt ID of the VM')
 

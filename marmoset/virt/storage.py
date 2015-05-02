@@ -1,7 +1,10 @@
+from string import Template
 from . import base
 
 
 class Storage(base.Parent):
+    DEFAULT = 'default'
+
     _func = dict(
         all     = 'listAllStoragePools',
         uuid    = 'storagePoolLookupByUUIDString',
@@ -29,8 +32,8 @@ class Storage(base.Parent):
         allocation, aunit = base.parse_unit(allocation)
         with open(Volume.template_file()) as f:
             xml = Template(f.read()).substitute(locals())
-        with connection() as conn:
-            return Volume(self._resouce.createXML(xml))
+        with base.connection() as conn:
+            return Volume(self._resource.createXML(xml))
 
 
 class Volume(base.Parent):
@@ -47,10 +50,6 @@ class Volume(base.Parent):
         4: 'netdir'
     }
 
-
-    def __init__(self, pool, volume):
-        self._pool      = pool
-        self._resource  = volume
 
     def info(self):
         keys = ['type', 'capacity', 'allocation']

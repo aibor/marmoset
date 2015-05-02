@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask.ext import restful
 from .flask import auth
 
+config = None
 
 def jsonify_nl(*args, **kwargs):
     resp = jsonify(*args, **kwargs)
@@ -44,7 +45,8 @@ def app(config):
 
     return app
 
-def run(config, args):
+def run(args):
+    global config
     webserver = app(config)
     print(webserver.url_map)
     webserver.run(

@@ -1,6 +1,6 @@
 from .exceptions import Error
 from .network import Network
-from . import base
+from . import base, domain_states
 from libvirt import libvirtError
 from string import Template
 
@@ -21,7 +21,6 @@ class Domain(base.Parent):
             klass = getattr(cls, klass)
             res   = [klass.xml_template(**r) for r in attrs[key]]
             attrs[key] = '\n'.join(res)
-            print(attrs)
         with open(cls.template_file()) as f:
             xml = Template(f.read()).substitute(attrs)
         with base.connection() as conn:
@@ -146,7 +145,6 @@ class Domain(base.Parent):
             source = self._xml.find('source')
             return source.attrib['network']
 
-        @property
         def host(self):
             network = Network.find_by('name', self.network)
             for host in network.hosts:
@@ -155,7 +153,7 @@ class Domain(base.Parent):
 
         @property
         def ip_address(self):
-            host = self.host
+            host = self.host()
             if host:
                 return host.ip_address
 

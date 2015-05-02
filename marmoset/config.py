@@ -69,6 +69,7 @@ def load(file_path = None):
 
     if config['Modules'].getboolean('Webserver'):
         from . import webserver
+        webserver.config = config
 
     return config
 

@@ -119,7 +119,7 @@ password is given, a random password is generated and returned. Takes
 JSON Input as well:
 
     curl -u admin:secret --data 'ip_address=10.10.1.1&label=rescue&password=SeCrEt' \
-    http://localhost:5000/pxe
+      http://localhost:5000/pxe
     # 201 on success
     #   {
     #      "ip_address": "10.10.1.1",
@@ -148,6 +148,47 @@ Destroy an entry:
 
 ##### VM
 
+Create a new VM:
+
+    curl -u admin:secret \
+      -d 'name=testvm&user=testuser&ip_address=10.10.1.1&memory=1G&disk=10G' \
+      http://localhost:5000/vm
+    # 201 on success
+    #     {
+    #         "disks": [
+    #             {
+    #                 "bus": "virtio",
+    #                 "capacity": "10 GiB",
+    #                 "device": "disk",
+    #                 "path": "/mnt/data/test-pool/testuser_testvm",
+    #                 "target": "hda",
+    #                 "type": "block"
+    #             }
+    #         ],
+    #         "interfaces": [
+    #             {
+    #                 "ip_address": "10.10.1.1",
+    #                 "mac_address": "52:54:00:47:b0:09",
+    #                 "model": "virtio",
+    #                 "network": "default",
+    #                 "type": "network"
+    #             }
+    #         ],
+    #         "memory": "1 GiB",
+    #         "name": "test",
+    #         "state": {
+    #             "reason": "unknown",
+    #             "state": "shutoff"
+    #         },
+    #         "user": "testuser",
+    #         "uuid": "cd412122-ec04-46d7-ba12-a7757aa5af11",
+    #         "vcpu": "1"
+    #     }
+    # 
+    # 422 if there is an error
+    #   {"message": "useful error message"}
+
+
 List all currently defined VMs:
 
     curl -u admin:secret http://localhost:5000/vm
@@ -156,7 +197,7 @@ List all currently defined VMs:
     #         "disks": [
     #             {
     #                 "bus": "virtio",
-    #                 "capacity": "1 GiB",
+    #                 "capacity": "10 GiB",
     #                 "device": "disk",
     #                 "path": "/mnt/data/test-pool/testo",
     #                 "target": "hda",
@@ -165,15 +206,14 @@ List all currently defined VMs:
     #         ],
     #         "interfaces": [
     #             {
-    #                 "host": null,
-    #                 "ip_address": null,
+    #                 "ip_address": "10.10.1.1",
     #                 "mac_address": "52:54:00:47:b0:09",
     #                 "model": "virtio",
     #                 "network": "default",
     #                 "type": "network"
     #             }
     #         ],
-    #         "memory": "2 GiB",
+    #         "memory": "1 GiB",
     #         "name": "test",
     #         "state": {
     #             "reason": "unknown",
@@ -185,6 +225,50 @@ List all currently defined VMs:
     #     }
     # ]
 
+
+Get info for a specific VM:
+
+    curl -u admin:secret http://localhost:5000/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
+    # 200 on success
+    #     {
+    #         "disks": [
+    #             {
+    #                 "bus": "virtio",
+    #                 "capacity": "10 GiB",
+    #                 "device": "disk",
+    #                 "path": "/mnt/data/test-pool/testuser_testvm",
+    #                 "target": "hda",
+    #                 "type": "block"
+    #             }
+    #         ],
+    #         "interfaces": [
+    #             {
+    #                 "ip_address": "10.10.1.1",
+    #                 "mac_address": "52:54:00:47:b0:09",
+    #                 "model": "virtio",
+    #                 "network": "default",
+    #                 "type": "network"
+    #             }
+    #         ],
+    #         "memory": "1 GiB",
+    #         "name": "test",
+    #         "state": {
+    #             "reason": "unknown",
+    #             "state": "shutoff"
+    #         },
+    #         "user": "testuser",
+    #         "uuid": "cd412122-ec04-46d7-ba12-a7757aa5af11",
+    #         "vcpu": "1"
+    #     }
+    # 
+    # 404 if the uuid doesn't exist
+
+
+Remove a VM:
+
+    curl -u admin:secret -X DELETE \
+      http://localhost:5000/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
+    # 204 on success
 
 
 ## Issues

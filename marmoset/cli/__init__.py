@@ -44,7 +44,7 @@ def parse(config):
 
     args = parser.parse_args()
     if 'func' in args:
-        args.func(config, args)
+        args.func(args)
     else:
         print('No subcommand given')
         parser.print_help()
