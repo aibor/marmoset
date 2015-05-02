@@ -1,11 +1,11 @@
 from .exceptions import Error
 from .network import Network
-from . import connection, with_unit, domain_states, Parent, Child
+from . import base
 from libvirt import libvirtError
 from string import Template
 
 
-class Domain(Parent):
+class Domain(base.Parent):
 
     _func = dict(
         all     = 'listAllDomains',
@@ -24,7 +24,7 @@ class Domain(Parent):
             print(attrs)
         with open(cls.template_file()) as f:
             xml = Template(f.read()).substitute(attrs)
-        with connection() as conn:
+        with base.connection() as conn:
             return cls(conn.defineXML(xml))
 
     @property
@@ -44,7 +44,7 @@ class Domain(Parent):
 
     @property
     def memory(self):
-        return with_unit(int(self.get_xml('memory').text)*1024)
+        return base.with_unit(int(self.get_xml('memory').text)*1024)
 
     @property
     def vcpu(self):
@@ -96,7 +96,7 @@ class Domain(Parent):
             raise Error(str(e))
 
 
-    class Disk(Child):
+    class Disk(base.Child):
         @property
         def path(self):
             return self._xml.find('source').attrib.get('dev')
@@ -120,7 +120,7 @@ class Domain(Parent):
         @property
         def capacity(self):
             value = self.blockinfo()['capacity']
-            return with_unit(value)
+            return base.with_unit(value)
 
         def blockinfo(self):
             keys    = ['capacity', 'allocation', 'physical']
@@ -128,7 +128,7 @@ class Domain(Parent):
             return dict(zip(keys, values))
 
 
-    class Interface(Child):
+    class Interface(base.Child):
         @property
         def type(self):
             return self._xml.attrib['type']

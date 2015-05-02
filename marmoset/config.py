@@ -63,7 +63,7 @@ def load(file_path = None):
         if config['Libvirt'].get('XMLTemplateDirectory'):
             virt.Virt.TEMPLATE_DIR = config['Libvirt']['XMLTemplateDirectory']
 
-        virt.URI                = config['Libvirt'].get('URI')
+        virt.base.URI           = config['Libvirt'].get('URI')
         virt.Network.DEFAULT    = config['Libvirt'].get('Network', 'default')
         virt.Storage.DEFAULT    = config['Libvirt'].get('Storage', 'default')
 

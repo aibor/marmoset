@@ -1,7 +1,7 @@
-from . import connection, with_unit, parse_unit, Parent
+from . import base
 
 
-class Storage(Parent):
+class Storage(base.Parent):
     _func = dict(
         all     = 'listAllStoragePools',
         uuid    = 'storagePoolLookupByUUIDString',
@@ -25,15 +25,15 @@ class Storage(Parent):
     def create_volume(self, name, capacity, allocation=None):
         if not allocation:
             allocation = capacity
-        capacity, cunit = parse_unit(capacity)
-        allocation, aunit = parse_unit(allocation)
+        capacity, cunit = base.parse_unit(capacity)
+        allocation, aunit = base.parse_unit(allocation)
         with open(Volume.template_file()) as f:
             xml = Template(f.read()).substitute(locals())
         with connection() as conn:
             return Volume(self._resouce.createXML(xml))
 
 
-class Volume(Parent):
+class Volume(base.Parent):
     _func = dict(
         key     = 'storageVolLookupByKey',
         path    = 'storageVolLookupByPath'
@@ -66,11 +66,11 @@ class Volume(Parent):
 
     @property
     def capacity(self):
-        return with_unit(self.info().get('capacity'))
+        return base.with_unit(self.info().get('capacity'))
 
     @property
     def allocation(self):
-        return with_unit(self.info().get('allocation'))
+        return base.with_unit(self.info().get('allocation'))
 
     @property
     def type(self):

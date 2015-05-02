@@ -1,7 +1,7 @@
 from flask import request
 from flask.ext.restful import reqparse, Resource, url_for, abort
 from werkzeug.exceptions import NotFound
-from marmoset import virt
+from .. import virt
 
 
 parser = reqparse.RequestParser()

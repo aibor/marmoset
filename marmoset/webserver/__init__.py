@@ -1,6 +1,5 @@
 from flask import Flask, jsonify
 from flask.ext import restful
-from marmoset import config
 from .flask import auth
 
 

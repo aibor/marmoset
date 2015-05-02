@@ -1,7 +1,7 @@
 from flask import request
 from flask.ext.restful import reqparse, Resource, url_for
 from werkzeug.exceptions import NotFound
-from marmoset import pxe
+from .. import pxe
 
 
 parser = reqparse.RequestParser()

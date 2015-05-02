@@ -1,7 +1,7 @@
-from . import connection, Parent, Child
+from . import base
 
 
-class Network(Parent):
+class Network(base.Parent):
     _func = dict(
         all     = 'listAllNetworks',
         uuid    = 'networkLookupByUUIDString',
@@ -47,7 +47,7 @@ class Network(Parent):
         self._resource.update(commands[command], 4, -1, xml)
 
 
-    class Host(Child):
+    class Host(base.Child):
 
         XML = "<host mac='{mac_address}' name='{name}' ip='{ip_address}'/>"
 
