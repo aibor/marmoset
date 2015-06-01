@@ -122,7 +122,7 @@ class Parent(Virt):
         Return the XML description of the libvirt instance. If @node is
         given, only the child node is returned instead of the root node.
         """
-        xml = ET.fromstring(self._resource.XMLDesc())
+        xml = ET.fromstring(self._resource.XMLDesc(1))
         return xml if node is None else xml.find(node)
 
 
