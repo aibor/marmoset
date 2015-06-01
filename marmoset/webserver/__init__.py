@@ -51,7 +51,7 @@ def run(args):
     print(webserver.url_map)
     webserver.run(
         host = config['Webserver'].get('Host'),
-        port = config['Webserver'].get('Port'),
+        port = config['Webserver'].getint('Port'),
         debug = config['Webserver'].getboolean('Debug')
     )
 
