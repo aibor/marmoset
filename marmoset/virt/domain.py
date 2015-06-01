@@ -66,6 +66,18 @@ class Domain(base.Parent):
         interfaces = self.get_xml('devices').findall('interface')
         return [Domain.Interface(iface, self) for iface in interfaces]
 
+    @property
+    def vnc_data(self):
+        graphics = self.get_xml('devices/graphics')
+        if graphics is None:
+            return {}
+        else:
+            return dict(
+                vnc_port = graphics.attrib.get('port'),
+                ws_port = graphics.attrib.get('websocket'),
+                password = graphics.attrib.get('passwd')
+            )
+
     def info(self):
         keys = ['state', 'memory_max', 'memory', 'vcpu', 'cpu_time']
         return dict(zip(keys, self._resource.info()))
