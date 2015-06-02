@@ -15,7 +15,7 @@ class Domain(base.Parent):
     )
                                 
     @classmethod
-    def create(cls, **attrs):
+    def define(cls, **attrs):
         for klass in 'Disk', 'Interface':
             key   = klass.lower() + 's'
             klass = getattr(cls, klass)

@@ -1,5 +1,6 @@
 <domain type='kvm'>
   <name>${user}_${name}</name>
+  <uuid>${uuid}</uuid>
   <metadata>
     <marmoset>
       <user>${user}</user>
@@ -42,6 +43,6 @@
     <input type='tablet' bus='usb'>
       <alias name='input0'/>
     </input>
-    <graphics type='vnc' port='-1' websocket='-1' keymap='de'/>
+    <graphics type='vnc' port='-1' websocket='-1' passwd='${password}' keymap='de'/>
   </devices>
 </domain>

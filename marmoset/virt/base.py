@@ -1,8 +1,8 @@
 from contextlib import contextmanager, closing
 from functools import wraps
-from os import path
+from os import path, urandom
 from re import match
-import libvirt
+import libvirt, base64
 from .exceptions import Error
 import xml.etree.ElementTree as ET
 from string import Template
@@ -26,8 +26,12 @@ def with_unit(value):
     """
     units = ['b', 'KiB', 'MiB', 'GiB', 'TiB']
     for unit in units:
-        if value < 1024 or unit == units[-1]: break
-        value = value / 1024
+        if value < 1024 or unit == units[-1]:
+            break
+        elif value < 1024**2 and value % 1024 != 0: 
+            break
+        else:
+            value = value / 1024
     return "%d %s" % (value, unit)
 
 def parse_unit(obj):
@@ -40,9 +44,14 @@ def parse_unit(obj):
         m = match('^(\d+) *(\w+)?$', obj)
         if m:
             value, unit = m.groups() 
+        else:
+            raise Exception('invalid string given to unit parser')
     else:
         value, unit = obj, None
     return int(value), (unit if unit else 'b')
+
+def generate_password(length = 32):
+    return base64.b64encode(urandom(length)).decode()[:length]
 
 
 class Virt:

@@ -106,7 +106,7 @@ Or with gunicorn:
 
 List all currently set entries:
 
-    curl -u admin:secret http://localhost:5000/pxe
+    curl -u admin:secret http://localhost:5000/v1/pxe
     #   [
     #     {
     #       "ip_address": "1.2.3.4",
@@ -119,7 +119,7 @@ password is given, a random password is generated and returned. Takes
 JSON Input as well:
 
     curl -u admin:secret --data 'ip_address=10.10.1.1&label=rescue&password=SeCrEt' \
-      http://localhost:5000/pxe
+      http://localhost:5000/v1/pxe
     # 201 on success
     #   {
     #      "ip_address": "10.10.1.1",
@@ -131,7 +131,7 @@ JSON Input as well:
 
 Check if there is an entry currently set:
 
-    curl -u admin:secret http://localhost:5000/pxe/10.10.1.1
+    curl -u admin:secret http://localhost:5000/v1/pxe/10.10.1.1
     # 200 if found
     #   {
     #      "ip_address": "10.10.1.1",
@@ -142,7 +142,7 @@ Check if there is an entry currently set:
 
 Destroy an entry:
 
-    curl -u admin:secret -X DELETE http://localhost:5000/pxe/10.10.1.1
+    curl -u admin:secret -X DELETE http://localhost:5000/v1/pxe/10.10.1.1
     # 204 on success
 
 
@@ -152,7 +152,7 @@ Create a new VM:
 
     curl -u admin:secret \
       -d 'name=testvm&user=testuser&ip_address=10.10.1.1&memory=1G&disk=10G' \
-      http://localhost:5000/vm
+      http://localhost:5000/v1/vm
     # 201 on success
     #     {
     #         "disks": [
@@ -182,7 +182,12 @@ Create a new VM:
     #         },
     #         "user": "testuser",
     #         "uuid": "cd412122-ec04-46d7-ba12-a7757aa5af11",
-    #         "vcpu": "1"
+    #         "vcpu": "1",
+    #         "vnc_data": {
+    #             "vnc_port": 5900,
+    #             "ws_port": 5700,
+    #             "password": "gferhhpehrehjrekhtngfmbfdkbkre"
+    #         }
     #     }
     # 
     # 422 if there is an error
@@ -191,7 +196,7 @@ Create a new VM:
 
 List all currently defined VMs:
 
-    curl -u admin:secret http://localhost:5000/vm
+    curl -u admin:secret http://localhost:5000/v1/vm
     # [
     #     {
     #         "disks": [
@@ -221,14 +226,19 @@ List all currently defined VMs:
     #         },
     #         "user": "testuser",
     #         "uuid": "cd412122-ec04-46d7-ba12-a7757aa5af11",
-    #         "vcpu": "1"
+    #         "vcpu": "1",
+    #         "vnc_data": {
+    #             "vnc_port": 5900,
+    #             "ws_port": 5700,
+    #             "password": "gferhhpehrehjrekhtngfmbfdkbkre"
+    #         }
     #     }
     # ]
 
 
 Get info for a specific VM:
 
-    curl -u admin:secret http://localhost:5000/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
+    curl -u admin:secret http://localhost:5000/v1/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
     # 200 on success
     #     {
     #         "disks": [
@@ -258,16 +268,67 @@ Get info for a specific VM:
     #         },
     #         "user": "testuser",
     #         "uuid": "cd412122-ec04-46d7-ba12-a7757aa5af11",
-    #         "vcpu": "1"
+    #         "vcpu": "1",
+    #         "vnc_data": {
+    #             "vnc_port": 5900,
+    #             "ws_port": 5700,
+    #             "password": "gferhhpehrehjrekhtngfmbfdkbkre"
+    #         }
     #     }
     # 
     # 404 if the uuid doesn't exist
 
 
+Update parameters of a VM:
+
+    curl -u admin:secret -X PUT -d 'memory=3 GiB&cpu=2&password=sEcReT' \
+      http://localhost:5000/v1/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
+
+    # 200 on success
+    #     {
+    #         "disks": [
+    #             {
+    #                 "bus": "virtio",
+    #                 "capacity": "10 GiB",
+    #                 "device": "disk",
+    #                 "path": "/mnt/data/test-pool/testuser_testvm",
+    #                 "target": "hda",
+    #                 "type": "block"
+    #             }
+    #         ],
+    #         "interfaces": [
+    #             {
+    #                 "ip_address": "10.10.1.1",
+    #                 "mac_address": "52:54:00:47:b0:09",
+    #                 "model": "virtio",
+    #                 "network": "default",
+    #                 "type": "network"
+    #             }
+    #         ],
+    #         "memory": "3 GiB",
+    #         "name": "test",
+    #         "state": {
+    #             "reason": "unknown",
+    #             "state": "shutoff"
+    #         },
+    #         "user": "testuser",
+    #         "uuid": "cd412122-ec04-46d7-ba12-a7757aa5af11",
+    #         "vcpu": "2",
+    #         "vnc_data": {
+    #             "vnc_port": 5900,
+    #             "ws_port": 5700,
+    #             "password": "sEcReT"
+    #         }
+    #     }
+    # 
+    # 404 if the uuid doesn't exist
+    # 422 if input values are not processable
+
+
 Remove a VM:
 
     curl -u admin:secret -X DELETE \
-      http://localhost:5000/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
+      http://localhost:5000/v1/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
     # 204 on success
 
 

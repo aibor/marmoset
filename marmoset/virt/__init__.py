@@ -2,6 +2,7 @@ from .domain import Domain
 from .network import Network
 from .storage import Storage
 from pprint import pprint
+import uuid
 
 
 def create(args):
@@ -12,20 +13,25 @@ def create(args):
     name = "{}_{}".format(args['user'], args['name'])
     storage = Storage.find_by('name', Storage.DEFAULT)
     disk = storage.create_volume(name, args['disk'])
+    memory, unit = base.parse_unit(args['memory'])
 
-    domain = Domain.create(
+    domain = Domain.define(
+        uuid = str(uuid.uuid4()),
         name = args['name'],
         user = args['user'],
-        memory = base.parse_unit(args['memory'])[0],
-        unit = base.parse_unit(args['memory'])[1],
+        memory = memory,
+        unit = unit,
         vcpu = args['cpu'],
         disks = [dict(path = disk.path, bus = 'virtio', target = 'hda')],
-        interfaces = [dict(model = 'virtio', network = Network.DEFAULT)])
+        interfaces = [dict(model = 'virtio', network = Network.DEFAULT)],
+        password = args.get('password', base.generate_password)
+    )
 
     network.add_host(
         domain.interfaces[0].mac_address,
         args['ip_address'],
-        name)
+        name
+    )
 
     return domain
 
@@ -35,8 +41,22 @@ def list(args):
         pprint(domain.attributes())
 
 
-def edit(args):
-    domain = Domain.find_by('uuid', args['uuid'])
+def edit(domain, args):
+    memory, unit = base.parse_unit(args.get('memory', domain.memory))
+    return Domain.define(
+        name = domain.name,
+        user = domain.user,
+        memory = memory,
+        unit = unit,
+        vcpu = args.get('cpu', domain.vcpu),
+        disks = [d.attributes() for d in domain.disks],
+        interfaces = [i.attributes() for i in domain.interfaces],
+        password = args.get(
+            'password',
+            domain.vnc_data.get('password', base.generate_password())
+        ),
+        uuid = domain.uuid
+    )
 
 
 def remove(args):

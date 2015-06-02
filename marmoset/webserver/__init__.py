@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask.ext import restful
 from .flask import auth
 
+API_VERSION = '1'
 config = None
 
 def jsonify_nl(*args, **kwargs):
@@ -18,7 +19,10 @@ def app(config):
     auth.for_all_routes(app)
     app.config['SERVER_NAME'] = config['Webserver'].get('ServerName')
 
-    api = restful.Api(app)
+    api = restful.Api(
+        app = app,
+        prefix = '/v{}'.format(API_VERSION)
+    )
     
     if config['Modules'].getboolean('PXE'):
         from . import pxe
