@@ -3,8 +3,8 @@ from .client_config import ClientConfig
 
 
 def create(args):
-    pxe_client = ClientConfig(args['ip_address'], args['password'])
-    pxe_client.create(Label.find(args['label']))
+    pxe_client = ClientConfig(args.ip_address, args.password)
+    pxe_client.create(Label.find(args.label))
     msg = 'Created %s with password %s' 
     print(msg % (pxe_client.file_path(), pxe_client.password))
 
@@ -15,7 +15,7 @@ def list(args):
 
 
 def remove(args):
-    pxe_client = ClientConfig(args['ip_address'])
+    pxe_client = ClientConfig(args.ip_address)
     if pxe_client.remove():
         print('Removed', pxe_client.file_path())
     else:

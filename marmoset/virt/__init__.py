@@ -7,21 +7,21 @@ import uuid
 
 def create(args):
     network = Network.find_by('name', Network.DEFAULT)
-    if network.knows_ip_address(args['ip_address']):
+    if network.knows_ip_address(args.ip_address):
         raise Exception('IP address already assigned')
 
-    name = "{}_{}".format(args['user'], args['name'])
+    name = "{}_{}".format(args.user, args.name)
     storage = Storage.find_by('name', Storage.DEFAULT)
-    disk = storage.create_volume(name, args['disk'])
-    memory, unit = base.parse_unit(args['memory'])
+    disk = storage.create_volume(name, args.disk)
+    memory, unit = base.parse_unit(args.memory)
 
     domain = Domain.define(
         uuid = str(uuid.uuid4()),
-        name = args['name'],
-        user = args['user'],
+        name = args.name,
+        user = args.user,
         memory = memory,
         unit = unit,
-        vcpu = args['cpu'],
+        vcpu = args.cpu,
         disks = [dict(path = disk.path, bus = 'virtio', target = 'hda')],
         interfaces = [dict(model = 'virtio', network = Network.DEFAULT)],
         password = args.get('password', base.generate_password)
@@ -29,7 +29,7 @@ def create(args):
 
     network.add_host(
         domain.interfaces[0].mac_address,
-        args['ip_address'],
+        args.ip_address,
         name
     )
 
@@ -60,7 +60,7 @@ def edit(domain, args):
 
 
 def remove(args):
-    domain = Domain.find_by('uuid', args['uuid'])
+    domain = Domain.find_by('uuid', args.uuid)
     try: domain.shutdown()
     except: pass
     for interface in domain.interfaces:
