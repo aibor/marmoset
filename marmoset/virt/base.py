@@ -28,7 +28,7 @@ def with_unit(value):
     for unit in units:
         if value < 1024 or unit == units[-1]:
             break
-        elif value < 1024**2 and value % 1024 != 0: 
+        elif value < 1024**2 and value % 1024 != 0:
             break
         else:
             value = value / 1024
@@ -43,7 +43,7 @@ def parse_unit(obj):
     if isinstance(obj, str):
         m = match('^(\d+) *(\w+)?$', obj)
         if m:
-            value, unit = m.groups() 
+            value, unit = m.groups()
         else:
             raise Exception('invalid string given to unit parser')
     else:
@@ -80,7 +80,7 @@ class Virt:
                 else:
                     attrs[name] = value
         return attrs
-       
+
 
 class Parent(Virt):
 
@@ -102,12 +102,12 @@ class Parent(Virt):
     def find_by(cls, attr, value):
         """"
         Return a class instance identified by specific attribute.
-        
+
         @attr: identifier attribute
         @value: value to search for
-        
+
         In order to work, the resource must provide the class variable
-        'func', which has to be a dict with at least the name ot the 
+        'func', which has to be a dict with at least the name ot the
         attributes to search for (like id, uuid, name) as keys and the
         respective libvirt function name to call as values.
         """

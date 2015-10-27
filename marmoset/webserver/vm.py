@@ -27,7 +27,7 @@ class VMCollection(Resource):
         parser.add_argument('disk', type=str, required=True)
         parser.add_argument('ip_address', type=str, required=True)
         parser.add_argument('password', type=str, default=None)
-        args = parser.parse_args() 
+        args = parser.parse_args()
         try:
             domain = virt.create(args)
             return domain.attributes()
@@ -47,13 +47,13 @@ class VMObject(Resource):
         parser.add_argument('memory', type=str, store_missing=False)
         parser.add_argument('cpu', type=int, store_missing=False)
         parser.add_argument('password', type=str, store_missing=False)
-        args = parser.parse_args() 
+        args = parser.parse_args()
         try:
             domain = virt.edit(domain, args)
             return domain.attributes()
         except Exception as e:
             abort(422, message = str(e))
-         
+
 
     def delete(self, uuid):
         try:
@@ -70,7 +70,7 @@ class VMCommand(Resource):
         parser.add_argument('command', type=str, required=True,
                 choices=['start', 'stop', 'shutdown', 'reset'])
         parser.add_argument('params', type=str, action='append', default=[])
-        args = parser.parse_args() 
+        args = parser.parse_args()
         domain = find_domain(uuid)
         try:
             res = getattr(domain, args.command)(*args.params)

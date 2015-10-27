@@ -13,7 +13,7 @@ class Domain(base.Parent):
         id      = 'lookupByID',
         name    = 'lookupByName'
     )
-                                
+
     @classmethod
     def define(cls, **attrs):
         for klass in 'Disk', 'Interface':

@@ -106,7 +106,7 @@ class ClientConfig:
         cfgdir = ClientConfig.CFG_DIR.rstrip('/')
         return cfgdir + '/' + name
 
-    
+
     def __write_config_file(self, content, path=None):
         if path is None:
             path = self.file_path()
@@ -122,7 +122,7 @@ class ClientConfig:
         if options is None:
             options = ''
         template = ClientConfig.CFG_TEMPLATE
-        return template.substitute(label=label, 
+        return template.substitute(label=label,
                                    options=options)
 
 
