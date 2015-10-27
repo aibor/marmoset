@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 def parse(config):
     desc        = 'Manage libvirt and pxe configs'
-    parser      = ArgumentParser(description=desc)  
+    parser      = ArgumentParser(description=desc)
     commands    = parser.add_subparsers(title='commands')
 
 
@@ -32,7 +32,7 @@ def parse(config):
             commands,
             'pxe',
             help='manage client specific PXE configs'
-        ) 
+        )
 
     if config['Modules'].getboolean('VM'):
         from . import virt_parser

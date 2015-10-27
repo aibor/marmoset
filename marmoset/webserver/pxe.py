@@ -18,7 +18,7 @@ class PXECollection(Resource):
 
     def post(self):
         '''Add a PXE entry for the given ip_address with a given password.'''
-        args = parser.parse_args() 
+        args = parser.parse_args()
         re = pxe.ClientConfig(args.ip_address, args.password)
 
         try:

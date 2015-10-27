@@ -23,7 +23,7 @@ def app(config):
         app = app,
         prefix = '/v{}'.format(API_VERSION)
     )
-    
+
     if config['Modules'].getboolean('PXE'):
         from . import pxe
         api.add_resource(pxe.PXECollection, '/pxe')
