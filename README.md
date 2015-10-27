@@ -12,9 +12,9 @@ Create `marmoset.conf` before using marmoset! See `Configuration` for details.
 ### Requirements
 
 * python 3.3+
-* libvirt-python3 (or similar package that provides libvirt python
-  bindings)
-* flask
+* libvirt-python3 (or similar package that provides libvirt python bindings)
+* Flask
+* Flask-RESTful
 
 
 ### Configuration
