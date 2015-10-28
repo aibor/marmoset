@@ -39,7 +39,7 @@ ConfigDirectory: /srv/tftp/pxelinux.cfg/
 # The PXELabel section has no defaults, as its entries depend on
 # the PXE configuration. The syntax is `label: callbackmethod`.
 # If the entry doesn't need any callback, just let callbackmethod
-# blank.
+# blank. Only use normal letters and numbers as labels, no - or whitespace
 #
 #[PXELabel]
 #rescue: setpwhash
