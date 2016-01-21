@@ -4,9 +4,13 @@ from .client_config import ClientConfig
 
 def create(args):
     pxe_client = ClientConfig(args.ip_address, args.password, args.script)
-    pxe_client.create(Label.find(args.label))
-    msg = 'Created %s with password %s'
-    print(msg % (pxe_client.file_path(), pxe_client.password))
+    used_options = pxe_client.create(Label.find(args.label))
+
+    msg = 'Created %s with following Options:'
+
+    print(msg % pxe_client.file_path())
+    for option in used_options:
+        print("\t%s" % option)
 
 
 def list(args):
