@@ -52,7 +52,9 @@ class ClientConfig:
 
         if self.exists():
             self.label = self.get_label()
-            self.script = self.get_script()
+
+            if script is None:
+                self.script = self.get_script()
 
         if not password in [None, '']:
             self.password = password
