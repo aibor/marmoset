@@ -98,3 +98,5 @@ fabric.properties
 Session.vim
 .netrwhist
 *~
+
+venv/
