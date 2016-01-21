@@ -52,6 +52,7 @@ class ClientConfig:
 
         if self.exists():
             self.label = self.get_label()
+            self.script = self.get_script()
 
         if not password in [None, '']:
             self.password = password
@@ -67,6 +68,14 @@ class ClientConfig:
         with open(self.file_path()) as f:
             for line in f:
                 m = re.match(' *APPEND (\w+)', line)
+                if m is not None:
+                    return m.group(1)
+
+    def get_script(self):
+        '''Parse the script option form the config file.'''
+        with open(self.file_path()) as f:
+            for line in f:
+                m = re.match(' *APPEND.*script=(\S+)', line)
                 if m is not None:
                     return m.group(1)
 
