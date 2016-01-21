@@ -42,12 +42,13 @@ class ClientConfig:
                 cbs.append(m[3:])
         return cbs
 
-    def __init__(self, ip_address, password=None):
+    def __init__(self, ip_address, password=None, script=None):
         if re.match('[0-9A-Z]{8}', ip_address.upper()):
             octets = [str(int(x, 16)) for x in re.findall('..', ip_address)]
             ip_address = '.'.join(octets)
 
         self.ip_address = ip_address
+        self.script = script
 
         if self.exists():
             self.label = self.get_label()
@@ -77,6 +78,9 @@ class ClientConfig:
         else:
             func = getattr(self, 'cb_%s' % pxe_label.callback)
             options = func()
+
+        if self.script is not None:
+            options = "%s script=%s" % (options, self.script)
 
         content = self.__expand_template(pxe_label.name, options)
         self.__write_config_file(content)
