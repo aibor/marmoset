@@ -1,0 +1,32 @@
+from flask import request
+from flask.ext.restful import reqparse, Resource, url_for
+from werkzeug.exceptions import NotFound
+from .. import installimage
+from ..installimage.req_argument_parser import ReqArgumentParser
+from ..installimage.installimage_config import InstallimageConfig
+
+
+parser = ReqArgumentParser()
+
+
+class InstallimageObject(Resource):
+    def get(self, mac):
+        installimage_config = InstallimageConfig(mac)
+
+        if installimage_config.exists():
+            return vars(installimage_config)
+        else:
+            abort(404)
+
+    def post(self, mac):
+        args = parser.parse_args(request)
+
+        installimage_config = InstallimageConfig(mac)
+
+        for key in args:
+            installimage_config.add_or_set(key, args[key])
+
+        installimage_config.create()
+
+        location = url_for('installimageobject', _method='GET', mac=installimage_config.mac)
+        return vars(installimage_config), 201, {'Location': location}
