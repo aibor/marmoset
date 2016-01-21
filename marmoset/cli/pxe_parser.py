@@ -20,6 +20,9 @@ def add_to(parser, name, **kwargs):
         supports this. If a password is necessary for the choosen label and
         none is given random password is created and returned''',
         default=None)
+    pxe_create.add_argument('-s', '--script',
+                            help='''Sciptfilepath''',
+                            default=None)
 
     pxe_list = subcommands.add_parser('list',
         help='list IP addresses for all currently present PXE client config',

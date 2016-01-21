@@ -42,15 +42,19 @@ class ClientConfig:
                 cbs.append(m[3:])
         return cbs
 
-    def __init__(self, ip_address, password=None):
+    def __init__(self, ip_address, password=None, script=None):
         if re.match('[0-9A-Z]{8}', ip_address.upper()):
             octets = [str(int(x, 16)) for x in re.findall('..', ip_address)]
             ip_address = '.'.join(octets)
 
         self.ip_address = ip_address
+        self.script = script
 
         if self.exists():
             self.label = self.get_label()
+
+            if script is None:
+                self.script = self.get_script()
 
         if not password in [None, '']:
             self.password = password
@@ -69,18 +73,34 @@ class ClientConfig:
                 if m is not None:
                     return m.group(1)
 
+    def get_script(self):
+        '''Parse the script option form the config file.'''
+        with open(self.file_path()) as f:
+            for line in f:
+                m = re.match(' *APPEND.*script=(\S+)', line)
+                if m is not None:
+                    return m.group(1)
+
 
     def create(self, pxe_label):
+        options = []
         '''Create the config file for this instance.'''
-        if pxe_label.callback is None:
-            options = None
-        else:
+        if pxe_label.callback is not None:
             func = getattr(self, 'cb_%s' % pxe_label.callback)
-            options = func()
+
+            if func is None:
+                print("No password hash method with name %s found" % func)
+
+            options.append(func())
+
+        if self.script is not None:
+            options.append("script=%s" % self.script)
 
         content = self.__expand_template(pxe_label.name, options)
         self.__write_config_file(content)
         self.label = pxe_label.name
+
+        return options
 
 
     def remove(self):
@@ -119,8 +139,8 @@ class ClientConfig:
 
     def __expand_template(self, label, options = None):
         '''Return the config file content expanded with the given values.'''
-        if options is None:
-            options = ''
+        options = " ".join(options)
+
         template = ClientConfig.CFG_TEMPLATE
         return template.substitute(label=label,
                                    options=options)

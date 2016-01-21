@@ -7,6 +7,7 @@ from .. import pxe
 parser = reqparse.RequestParser()
 parser.add_argument('ip_address', type=str)
 parser.add_argument('password', type=str, default=None)
+parser.add_argument('script', type=str, default=None)
 parser.add_argument('label', type=str, choices=pxe.Label.names(), default=pxe.Label.names()[0])
 
 class PXECollection(Resource):
@@ -19,7 +20,7 @@ class PXECollection(Resource):
     def post(self):
         '''Add a PXE entry for the given ip_address with a given password.'''
         args = parser.parse_args()
-        re = pxe.ClientConfig(args.ip_address, args.password)
+        re = pxe.ClientConfig(args.ip_address, args.password, args.script)
 
         try:
             re.create(pxe.Label.find(args.label))

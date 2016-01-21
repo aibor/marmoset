@@ -3,11 +3,12 @@ from .client_config import ClientConfig
 
 
 def create(args):
-    pxe_client = ClientConfig(args.ip_address, args.password)
-    pxe_client.create(Label.find(args.label))
-    msg = 'Created %s with password %s'
-    print(msg % (pxe_client.file_path(), pxe_client.password))
+    pxe_client = ClientConfig(args.ip_address, args.password, args.script)
+    used_options = pxe_client.create(Label.find(args.label))
 
+    msg = 'Created %s with following Options: %s'
+
+    print(msg % (pxe_client.file_path(), " ".join(used_options)))
 
 def list(args):
     for pxe_client in ClientConfig.all():
