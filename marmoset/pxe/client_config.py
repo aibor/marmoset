@@ -72,19 +72,24 @@ class ClientConfig:
 
 
     def create(self, pxe_label):
+        options = []
         '''Create the config file for this instance.'''
-        if pxe_label.callback is None:
-            options = None
-        else:
+        if pxe_label.callback is not None:
             func = getattr(self, 'cb_%s' % pxe_label.callback)
-            options = func()
+
+            if func is None:
+                print("No password hash method with name %s found" % func)
+
+            options.append(func())
 
         if self.script is not None:
-            options = "%s script=%s" % (options, self.script)
+            options.append("script=%s" % self.script)
 
         content = self.__expand_template(pxe_label.name, options)
         self.__write_config_file(content)
         self.label = pxe_label.name
+
+        return options
 
 
     def remove(self):
@@ -123,8 +128,8 @@ class ClientConfig:
 
     def __expand_template(self, label, options = None):
         '''Return the config file content expanded with the given values.'''
-        if options is None:
-            options = ''
+        options = " ".join(options)
+
         template = ClientConfig.CFG_TEMPLATE
         return template.substitute(label=label,
                                    options=options)
