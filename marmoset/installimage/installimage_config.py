@@ -54,7 +54,7 @@ class InstallimageConfig:
 
         for line in lines:
             key = line.split(" ")[0]
-            value = line.split(" ", 1)[1]
+            value = line.split(" ", 1)[1].rstrip('\n')
 
             self.variables[key] = value
 
