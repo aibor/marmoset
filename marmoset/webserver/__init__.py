@@ -39,6 +39,7 @@ def app(config):
         from . import installimage
         api.add_resource(installimage.InstallimageCollection, '/installimage')
         api.add_resource(installimage.InstallimageObject, '/installimage/<mac>')
+        api.add_resource(installimage.InstallimageConfigCommand, '/installimage/<mac>/config')
 
     @app.errorhandler(404)
     def not_found(ex):
