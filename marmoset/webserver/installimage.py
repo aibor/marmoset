@@ -1,5 +1,5 @@
 from flask import request, make_response
-from flask.ext.restful import reqparse, Resource, url_for
+from flask.ext.restful import reqparse, Resource, url_for, abort
 from werkzeug.exceptions import NotFound
 from .. import installimage
 from ..installimage.req_argument_parser import ReqArgumentParser
