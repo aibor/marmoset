@@ -61,10 +61,11 @@ class InstallimageConfig:
             f.close()
 
         for line in lines:
-            key = line.split(" ")[0]
-            value = line.split(" ", 1)[1].rstrip('\n')
+            if len(line.strip()) > 0:
+                key = line.split(" ")[0]
+                value = line.split(" ", 1)[1].rstrip('\n')
 
-            self.variables[key] = value
+                self.variables[key] = value
 
     def get_content(self):
         variable_lines = []
