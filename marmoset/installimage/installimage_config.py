@@ -58,15 +58,18 @@ class InstallimageConfig:
 
             self.variables[key] = value
 
-    def __write_config_file(self, path=None):
-        if path is None:
-            path = self.file_path()
-
+    def get_content(self):
         variable_lines = []
         for key in self.variables:
             variable_lines.append("%s %s" % (key, self.variables[key]))
 
-        content = "\n".join(variable_lines)
+        return "\n".join(variable_lines)
+
+    def __write_config_file(self, path=None):
+        if path is None:
+            path = self.file_path()
+
+        content = self.get_content()
 
         os.makedirs(InstallimageConfig.CFG_DIR, exist_ok=True)
         with open(path, 'w') as f:
