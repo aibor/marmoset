@@ -1,8 +1,17 @@
 import os
-
+import re
 
 class InstallimageConfig:
     CFG_DIR = '/srv/tftp/installimage/'
+
+    @classmethod
+    def all(cls):
+        '''Return all currently defined installimage configs.'''
+        entries = []
+        for entry_file in os.listdir(InstallimageConfig.CFG_DIR):
+            if re.match('([0-9A-Z]{2}_){3}[0-9A-Z]{2}', entry_file):
+                entries.append(InstallimageConfig(entry_file))
+        return entries
 
     def __init__(self, mac):
         self.variables = {}
