@@ -72,7 +72,12 @@ class InstallimageConfig:
         for key in self.variables:
             variable_lines.append("%s %s" % (key, self.variables[key]))
 
-        return "\n".join(variable_lines)
+        content = "\n".join(variable_lines)
+
+        if not content.endswith("\n"):
+            content += "\n"
+
+        return content
 
     def __write_config_file(self, path=None):
         if path is None:
