@@ -9,6 +9,11 @@ from ..installimage.installimage_config import InstallimageConfig
 parser = ReqArgumentParser()
 
 
+class InstallimageCollection(Resource):
+    def get(self):
+        return [vars(c) for c in InstallimageConfig.all()]
+
+
 class InstallimageObject(Resource):
     def get(self, mac):
         installimage_config = InstallimageConfig(mac)
