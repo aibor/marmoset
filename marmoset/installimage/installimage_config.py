@@ -9,7 +9,7 @@ class InstallimageConfig:
         '''Return all currently defined installimage configs.'''
         entries = []
         for entry_file in os.listdir(InstallimageConfig.CFG_DIR):
-            if re.match('([0-9A-Z]{2}_){5}[0-9A-Z]{2}', entry_file):
+            if re.match('([0-9A-Za-z]{2}_){5}[0-9A-Za-z]{2}', entry_file):
                 entries.append(InstallimageConfig(entry_file))
         return entries
 
