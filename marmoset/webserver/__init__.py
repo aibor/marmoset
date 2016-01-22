@@ -37,6 +37,7 @@ def app(config):
 
     if config['Modules'].getboolean('INSTALLIMAGE'):
         from . import installimage
+        api.add_resource(installimage.InstallimageCollection, '/installimage')
         api.add_resource(installimage.InstallimageObject, '/installimage/<mac>')
 
     @app.errorhandler(404)
