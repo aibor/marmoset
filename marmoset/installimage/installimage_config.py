@@ -12,7 +12,7 @@ class InstallimageConfig:
             self.__read_config_file()
 
     def add_or_set(self, key, value):
-        self.variables[key] = value
+        self.variables[key.upper()] = value
 
     def create(self):
         self.__write_config_file()
@@ -55,7 +55,7 @@ class InstallimageConfig:
 
         variable_lines = []
         for key in self.variables:
-            variable_lines.append("%s %s" % (key.upper(), self.variables[key]))
+            variable_lines.append("%s %s" % (key, self.variables[key]))
 
         content = "\n".join(variable_lines)
 
