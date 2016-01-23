@@ -83,8 +83,8 @@ class ClientConfig:
 
 
     def create(self, pxe_label):
-        options = []
         '''Create the config file for this instance.'''
+        options = []
         if pxe_label.callback is not None:
             func = getattr(self, 'cb_%s' % pxe_label.callback)
 
