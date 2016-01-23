@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 def parse(config):
-    desc        = 'Manage libvirt and pxe configs'
+    desc        = 'Manage libvirt, pxe configs and installimage configs'
     parser      = ArgumentParser(description=desc)
     commands    = parser.add_subparsers(title='commands')
 
@@ -40,6 +40,14 @@ def parse(config):
             commands,
             'vm',
             help='manage libvirt domains and their associated resources'
+        )
+
+    if config['Modules'].getboolean('INSTALLIMAGE'):
+        from . import installimage_parser
+        installimage_parser.add_to(
+            commands,
+            'installimage',
+            help='manage installimage configs'
         )
 
     args = parser.parse_args()

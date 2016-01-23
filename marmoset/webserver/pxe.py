@@ -1,5 +1,5 @@
 from flask import request
-from flask.ext.restful import reqparse, Resource, url_for
+from flask.ext.restful import reqparse, Resource, url_for, abort
 from werkzeug.exceptions import NotFound
 from .. import pxe
 

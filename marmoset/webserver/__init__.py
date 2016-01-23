@@ -35,6 +35,12 @@ def app(config):
         api.add_resource(vm.VMObject, '/vm/<uuid>')
         api.add_resource(vm.VMCommand, '/vm/<uuid>/action')
 
+    if config['Modules'].getboolean('INSTALLIMAGE'):
+        from . import installimage
+        api.add_resource(installimage.InstallimageCollection, '/installimage')
+        api.add_resource(installimage.InstallimageObject, '/installimage/<mac>')
+        api.add_resource(installimage.InstallimageConfigCommand, '/installimage/<mac>/config')
+
     @app.errorhandler(404)
     def not_found(ex):
         resp = jsonify_nl(message="Route not found.", status=404)
