@@ -83,8 +83,8 @@ class ClientConfig:
 
 
     def create(self, pxe_label):
-        options = []
         '''Create the config file for this instance.'''
+        options = []
         if pxe_label.callback is not None:
             func = getattr(self, 'cb_%s' % pxe_label.callback)
 
@@ -139,7 +139,11 @@ class ClientConfig:
 
     def __expand_template(self, label, options = None):
         '''Return the config file content expanded with the given values.'''
-        options = " ".join(options)
+
+        if options is not None:
+            options = " ".join(options)
+        else:
+            options = ''
 
         template = ClientConfig.CFG_TEMPLATE
         return template.substitute(label=label,
