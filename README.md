@@ -48,7 +48,7 @@ Please checkout our [requirements.txt](requirements.txt) for a complete and auth
 * Werkzeug
 * wheel
 
-In addition to these eggs, you also need at least Python 3.3, we are currently developing at 3.5
+In addition to these python packages, you also need at least Python 3.3, we are currently developing and testing on 3.5 but will extend that to 3.3/3.4 in the future and in our travis testing matrix
 
 ---
 
