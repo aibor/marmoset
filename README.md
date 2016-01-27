@@ -48,7 +48,7 @@ Please checkout our [requirements.txt](requirements.txt) for a complete and auth
 * Werkzeug
 * wheel
 
-In addition to these python packages, you also need at least Python 3.3. We are currently developing and testing on 3.5 but we plan to support Python3.3 and 3.4 as well.
+In addition to these python packages, you also need Python 3. This project originally started with Python 3.3, we are currently developing and testing on 3.5 but we plan to support Python 3.3 and 3.4 as well.
 
 ---
 
