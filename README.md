@@ -48,7 +48,7 @@ Please checkout our [requirements.txt](requirements.txt) for a complete and auth
 * Werkzeug
 * wheel
 
-In addition to these python packages, you also need at least Python 3.3, we are currently developing and testing on 3.5 but will extend that to 3.3/3.4 in the future and in our travis testing matrix
+In addition to these python packages, you also need at least Python 3.3. We are currently developing and testing on 3.5 but we plan to support Python3.3 and 3.4 as well.
 
 ---
 
@@ -378,7 +378,7 @@ Remove a VM:
 204 on success
 
 ### HTTP installimage
-This endpoint is meant to work together with our [installimage](https://github.com/virtapi/installimage). We identify each dataset by his MAC address and store the key:value config pairs for the installimage.
+This endpoint is meant to work together with our [installimage](https://github.com/virtapi/installimage). We identify each dataset by its MAC address and store the key:value config pairs for the installimage.
 
 #### List Entries
     curl -u admin:secret http://localhost:8080/v1/installimage
