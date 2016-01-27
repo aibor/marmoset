@@ -2,22 +2,56 @@
 
 Monkeying around with virtual machines and pxe configs.
 
+---
 
+## Contents
++ [Setup](#setup)
++ [Requirements](#requirements)
++ [Configuration](#configuration)
++ [Usage](#usage)
+  - [CLI](#cli)
+    - [CLI PXE](#cli-pxe)
+    - [CLI VM](#cli-vm)
+  - [HTTP Server](#http-server)
+    - [HTTP PXE](#http-pxe)
+    - [HTTP VM](#http-vm)
++ [Issues](#issues)
++ [Copyright](#copyright)
++ [Name origin](#name-origin)
+
+---
 
 ## Setup
 
 Create `marmoset.conf` before using marmoset! See `Configuration` for details.
+Copy the `marmoset.conf.example` to `marmoset.conf` and adjust the settings to your needs.
+Checkout the Comments in the file our our [Configuration](#configuration) section.
 
+---
 
-### Requirements
+## Requirements
+Please checkout our [requirements.txt](requirements.txt) for a complete and authoritative list!
 
-* python 3.3+
-* libvirt-python3 (or similar package that provides libvirt python bindings)
+* aniso8601
 * Flask
 * Flask-RESTful
+* itsdangerous
+* Jinja2
+* ldap3
+* libvirt-python
+* MarkupSafe
+* pyasn1
+* python-dateutil
+* pytz
+* six
+* Werkzeug
+* wheel
 
+In addition to these eggs, you also need at least Python 3.3, we are currently developing at 3.5
 
-### Configuration
+---
+
+## Configuration
 
 The configuration file has to be placed in the app's root directory
 as `marmoset.conf`. It is necessary to define a `PXELabel` section.
@@ -30,13 +64,14 @@ If you want to customize the XML templates for libvirt objects, copy
 the template dir `marmoset/virt/templates/` and specify the new path
 in the `Libvirt` section.
 
+---
 
 ## Usage
 
 Marmoset can be used via CLI directly or as a HTTP server.
 
 
-### CLI
+## CLI
 
 To see all available subcommands and their aliases, just run the script
 with the command:
@@ -47,10 +82,9 @@ Each subcommand provides its own help text:
 
     $ ./marmoset.py pxe -h
 
+### CLI PXE
 
-#### PXE
-
-##### Create entries
+#### CLI Create Entries
 
 Create an PXE entry with the default label:
 
@@ -65,31 +99,29 @@ password for the PXE boot target, you can provide a pasword:
 
     $ ./marmoset.py pxe c -l freebsd -p SoSecretPW 3.4.5.6
 
-
-##### List entries
+#### CLI List Entries
 
 List all entries:
 
     $ ./marmoset.py pxe list
 
-
-##### Remove entries
+#### CLI Remove Entries
 
 Remove the entry for an IP address:
 
     $ ./marmoset.py pxe remove 3.4.5.6
 
+### CLI VM
 
-#### VM
-
-##### List VMs
+#### CLI List VMs
 
 List all defined libvirt domains and their attributes:
 
     $ ./marmoset.py vm list
 
+---
 
-### HTTP server
+## HTTP Server
 
 Start it like this:
 
@@ -99,10 +131,7 @@ Or with gunicorn:
 
     $ gunicorn marmoset.app:app
 
-
-#### Routes
-
-##### PXE
+#### HTTP PXE
 
 List all currently set entries:
 
@@ -154,7 +183,7 @@ Destroy an entry:
 204 on success
 
 
-##### VM
+#### HTTP VM
 
 Create a new VM:
 
@@ -340,13 +369,13 @@ Update parameters of a VM:
 * 404 if the uuid doesn't exist
 * 422 if input values are not processable
 
-
 Remove a VM:
 
     curl -u admin:secret -X DELETE http://localhost:5000/v1/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
 
 204 on success
 
+---
 
 ## Issues
 
@@ -354,7 +383,7 @@ Find this code at [the git repo](https://www.github.com/virtapi/marmoset/). Find
 
 Contact the original author at code@aibor.de or us in #virtapi at freenode.
 
-
+---
 
 ## Copyright
 
@@ -375,3 +404,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+---
+
+## Name Origin
+The marmosets is a group of monkey species, checkout [wikipedia](https://en.wikipedia.org/wiki/Marmoset) for detailed infos.
