@@ -15,6 +15,7 @@ Monkeying around with virtual machines and pxe configs.
   - [HTTP Server](#http-server)
     - [HTTP PXE](#http-pxe)
     - [HTTP VM](#http-vm)
+    - [HTTP installimage](#http-installimage)
 + [Issues](#issues)
 + [Copyright](#copyright)
 + [Name origin](#name-origin)
@@ -84,7 +85,13 @@ Each subcommand provides its own help text:
 
 ### CLI PXE
 
-#### CLI Create Entries
+#### CLI List Entries
+
+List all entries:
+
+    $ ./marmoset.py pxe list
+
+#### Create Entries
 
 Create an PXE entry with the default label:
 
@@ -99,13 +106,7 @@ password for the PXE boot target, you can provide a pasword:
 
     $ ./marmoset.py pxe c -l freebsd -p SoSecretPW 3.4.5.6
 
-#### CLI List Entries
-
-List all entries:
-
-    $ ./marmoset.py pxe list
-
-#### CLI Remove Entries
+#### Remove Entries
 
 Remove the entry for an IP address:
 
@@ -113,7 +114,7 @@ Remove the entry for an IP address:
 
 ### CLI VM
 
-#### CLI List VMs
+#### List VMs
 
 List all defined libvirt domains and their attributes:
 
@@ -131,9 +132,9 @@ Or with gunicorn:
 
     $ gunicorn marmoset.app:app
 
-#### HTTP PXE
+### HTTP PXE
 
-List all currently set entries:
+#### List Entries
 
     curl -u admin:secret http://localhost:5000/v1/pxe
 
@@ -147,7 +148,8 @@ List all currently set entries:
 ]
 ```
 
-Create a new PXE config entry. Label defaults to "rescue". If nopassword is given, a random password is generated and returned. Takes JSON Input as well:
+#### Create Entries
+Create a new PXE config entry. Label defaults to "rescue". If no password is given and a callback method is set, a random password is generated and returned. Takes JSON Input as well:
 
     curl -u admin:secret --data 'ip_address=10.10.1.1&label=rescue&password=SeCrEt' http://localhost:5000/v1/pxe
 
@@ -176,7 +178,7 @@ Check if there is an entry currently set:
 
 404 if not found
 
-Destroy an entry:
+#### Remove Entries
 
     curl -u admin:secret -X DELETE http://localhost:5000/v1/pxe/10.10.1.1
 
@@ -374,6 +376,108 @@ Remove a VM:
     curl -u admin:secret -X DELETE http://localhost:5000/v1/vm/cd412122-ec04-46d7-ba12-a7757aa5af11
 
 204 on success
+
+### HTTP installimage
+This endpoint is meant to work together with our [installimage](https://github.com/virtapi/installimage). We identify each dataset by his MAC address and store the key:value config pairs for the installimage.
+
+#### List Entries
+    curl -u admin:secret http://localhost:8080/v1/installimage
+
+```json
+[
+    {
+        "mac": "00_00_00_00_00_00",
+        "variables": {
+            "BOOTLOADER": "grub",
+            "DRIVE1": "/dev/sda",
+            "HOSTNAME": "CentOS-71-64-minimal",
+            "IMAGE": "/root/.installimage/../images/CentOS-71-64-minimal.tar.gz",
+            "PART": "/ ext4 all"
+        }
+    },
+    {
+        "mac": "b8_ac_6f_97_7e_77",
+        "variables": {
+            "BOOTLOADER": "grub",
+            "DRIVE1": "/dev/sda",
+            "HOSTNAME": "CentOS-71-64-minimal",
+            "IMAGE": "/root/.installimage/../images/CentOS-71-64-minimal.tar.gz",
+            "IP_ADDRESS": "10.30.7.41",
+            "LABEL": "archrescue",
+            "PART": "/ ext4 all",
+            "PASSWORD": "One123",
+            "SCRIPT": "/usr/local/bin/start_installimage"
+        }
+    }
+]
+
+```
+
+#### List a single Entry
+		curl -u admin:secret http://localhost:8080/v1/installimage/b8:ac:6f:97:7e:77
+
+```json
+{
+    "mac": "b8:ac:6f:97:7e:77",
+    "variables": {
+        "BOOTLOADER": "grub",
+        "DRIVE1": "/dev/sda",
+        "HOSTNAME": "CentOS-71-64-minimal",
+        "IMAGE": "/root/.installimage/../images/CentOS-71-64-minimal.tar.gz",
+        "IP_ADDRESS": "10.30.7.41",
+        "LABEL": "archrescue",
+        "PART": "/ ext4 all",
+        "PASSWORD": "One123",
+        "SCRIPT": "/usr/local/bin/start_installimage"
+    }
+}
+```
+
+#### List a single Entry in the installimage format
+		curl -u admin:secret http://localhost:8080/v1/installimage/b8:ac:6f:97:7e:77/config
+
+```
+PART / ext4 all
+IMAGE /root/.installimage/../images/CentOS-71-64-minimal.tar.gz
+DRIVE1 /dev/sda
+LABEL archrescue
+PASSWORD One123
+IP_ADDRESS 10.30.7.41
+SCRIPT /usr/local/bin/start_installimage
+BOOTLOADER grub
+HOSTNAME CentOS-71-64-minimal
+```
+
+#### Create a record
+		curl -u admin:secret --data "drive1=/dev/sda&bootloader=grub&hostname=CentOS-71-64-minimal&PART=/ ext4 all&image=/root/.installimage/../images/CentOS-71-64-minimal.tar.gz" http://localhost:8080/v1/installimage/b8:ac:6f:97:7e:77
+
+Returns the created record:
+```json
+{
+    "mac": "b8:ac:6f:97:7e:77",
+    "variables": {
+        "BOOTLOADER": "grub",
+        "DRIVE1": "/dev/sda",
+        "HOSTNAME": "CentOS-71-64-minimal",
+        "IMAGE": "/root/.installimage/../images/CentOS-71-64-minimal.tar.gz",
+        "IP_ADDRESS": "10.30.7.41",
+        "LABEL": "archrescue",
+        "PART": "/ ext4 all",
+        "PASSWORD": "One123",
+        "SCRIPT": "/usr/local/bin/start_installimage"
+    }
+}
+```
+
+#### Delete a Record
+		curl -u admin:secret -X DELETE http://localhost:8080/v1/installimage/b8:ac:6f:97:7e:77
+
+Errormessage if you want to delete or list a nonexistent entry:
+```json
+{
+    "message": "The requested URL was not found on the server.  If you entered the URL manually please check your spelling and try again. You have requested this URI [/v1/installimage/b8:ac:6f:97:7e:77] but did you mean /v1/installimage/<mac> or /v1/installimage/<mac>/config or /v1/installimage ?"
+}
+```
 
 ---
 
